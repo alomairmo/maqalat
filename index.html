@@ -3,401 +3,689 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مُنصّة الكانفاس الصحفية الأثرية التفاعلية</title>
+    <title>منصة الكانفاس الصحفية | الإصدار المطور</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for premium arabic typography -->
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@300;400;600;700;900&family=Reem+Kufi:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
+    
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Tailwind Config for Custom Colors/Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'tajawal': ['Tajawal', 'sans-serif'],
+                        'amiri': ['Amiri', 'serif'],
+                        'reem': ['Reem Kufi', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#141414',
+                            700: '#1f1f1f',
+                            600: '#2e2e2e',
+                        },
+                        gold: {
+                            500: '#d4af37',
+                            400: '#e6c762',
+                            600: '#aa8c2c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #111;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #c29d38;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
+
         body {
+            background-color: #0a0a0a;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.03), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.04), transparent 25%);
             font-family: 'Tajawal', sans-serif;
-            background-color: #0c0c0e;
+            color: #e5e5e5;
         }
-        .canvas-container {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-        }
-        /* Custom styled controls */
+
+        /* Glassmorphism Panels */
         .glass-panel {
-            background: rgba(20, 20, 25, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px border rgba(255, 255, 255, 0.05);
+            background: rgba(20, 20, 20, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Canvas Container Shadows */
+        .canvas-shadow {
+            box-shadow: 
+                0 20px 50px -10px rgba(0,0,0,0.8),
+                0 0 0 1px rgba(255,255,255,0.05),
+                0 0 40px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Inputs & Controls */
+        .input-field {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px; width: 16px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px;
+            cursor: pointer;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* Toast Animation */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+        .toast-enter {
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Loading Overlay for Canvas */
+        .rendering-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+        .is-rendering .rendering-overlay {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="text-stone-300 min-h-screen flex flex-col overflow-x-hidden">
+<body class="min-h-screen flex flex-col overflow-hidden">
 
-    <!-- Top Premium Navigation Header -->
-    <header class="bg-stone-950/95 border-b border-stone-850 py-4 px-6 sticky top-0 z-50 shadow-2xl backdrop-blur-md">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-tr from-amber-600 to-yellow-400 text-stone-950 p-2.5 rounded-xl text-xl font-bold shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-feather-pointed animate-pulse"></i>
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2"></div>
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 border-b border-white/5">
+        <div class="max-w-[1920px] mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                    <i class="fa-solid fa-scroll text-dark-900 text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-['Reem+Kufi'] text-xl font-bold tracking-wide text-amber-500">مُنصّة الكانفاس الصحفية الأثرية</h1>
-                    <p class="text-xs text-stone-400">محرك تصفيف صحفي متكامل وتفاعلي يعتمد بالكامل على HTML5 Canvas</p>
+                    <h1 class="font-reem text-2xl font-bold text-gold-500 tracking-wide drop-shadow-md">الصحيفة الأثرية</h1>
+                    <p class="text-[11px] text-gray-400 font-medium tracking-widest mt-0.5">محرك تصفيف ديناميكي عالي الدقة</p>
                 </div>
             </div>
-            
-            <div class="flex flex-wrap items-center gap-3">
-                <button onclick="zoomCanvas(0.1)" class="bg-stone-900 hover:bg-stone-800 text-stone-200 px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 border border-stone-800">
-                    <i class="fa-solid fa-magnifying-glass-plus text-amber-500"></i> تكبير
+
+            <!-- Toolbar Actions -->
+            <div class="flex items-center gap-3">
+                
+                <!-- Zoom Controls -->
+                <div class="flex items-center bg-dark-800/80 rounded-lg p-1 border border-white/5 shadow-inner">
+                    <button onclick="zoom(0.1)" class="w-9 h-9 flex items-center justify-center rounded hover:bg-dark-600 text-gray-300 hover:text-gold-400 transition-colors" title="تكبير">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <span id="zoom-level-display" class="text-xs font-mono px-2 text-gray-400 w-12 text-center">65%</span>
+                    <button onclick="zoom(-0.1)" class="w-9 h-9 flex items-center justify-center rounded hover:bg-dark-600 text-gray-300 hover:text-gold-400 transition-colors" title="تصغير">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <div class="w-px h-5 bg-white/10 mx-1"></div>
+                    <button onclick="resetZoom()" class="w-9 h-9 flex items-center justify-center rounded hover:bg-dark-600 text-gray-300 transition-colors" title="استعادة الحجم الأصلي">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+
+                <!-- Export Buttons -->
+                <button onclick="exportImage()" class="group relative px-5 py-2.5 bg-dark-800 hover:bg-dark-700 text-gray-200 text-sm font-bold rounded-lg border border-white/10 transition-all flex items-center gap-2 overflow-hidden">
+                    <div class="absolute inset-0 w-0 bg-gold-600 transition-all duration-[250ms] ease-out group-hover:w-full opacity-10"></div>
+                    <i class="fa-solid fa-image text-gold-500 group-hover:scale-110 transition-transform"></i>
+                    <span class="relative">تصدير صورة</span>
                 </button>
-                <button onclick="zoomCanvas(-0.1)" class="bg-stone-900 hover:bg-stone-800 text-stone-200 px-3.5 py-2 rounded-xl text-sm transition flex items-center gap-2 border border-stone-800">
-                    <i class="fa-solid fa-magnifying-glass-minus text-amber-500"></i> تصغير
-                </button>
-                <button onclick="resetZoom()" class="bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 p-2 rounded-xl text-sm transition border border-stone-800" title="إعادة تعيين الحجم">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                </button>
-                <button onclick="downloadCanvasImage()" class="bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold px-6 py-2 rounded-xl text-sm transition flex items-center gap-2 shadow-xl shadow-amber-600/25">
-                    <i class="fa-solid fa-download"></i> تحميل كصورة (عالية الدقة)
+                
+                <button onclick="exportPDF()" class="group relative px-5 py-2.5 bg-gradient-to-r from-red-900 to-red-800 hover:from-red-800 hover:to-red-700 text-white text-sm font-bold rounded-lg border border-red-500/30 transition-all shadow-[0_0_15px_rgba(153,27,27,0.4)] flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf group-hover:-translate-y-0.5 transition-transform"></i>
+                    <span>حفظ PDF</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Workspace -->
-    <main class="flex-1 max-w-[1750px] w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- Main Content Area -->
+    <main class="flex-1 flex overflow-hidden max-w-[1920px] mx-auto w-full">
         
-        <!-- Left Sidebar: Controls & Live Editor inputs -->
-        <div class="lg:col-span-4 bg-stone-950/80 border border-stone-850 rounded-2xl p-5 shadow-2xl flex flex-col gap-5 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto">
-            <div>
-                <h2 class="text-lg font-bold text-amber-500 border-b border-stone-850 pb-3 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-amber-500"></i> لوحة التحكم والتعديل التلقائي
-                </h2>
+        <!-- Sidebar Controls -->
+        <aside class="w-full md:w-[400px] lg:w-[450px] flex-shrink-0 border-l border-white/5 glass-panel z-40 flex flex-col h-[calc(100vh-81px)]">
+            
+            <div class="p-4 border-b border-white/5 flex items-center gap-2 text-gold-500">
+                <i class="fa-solid fa-sliders"></i>
+                <h2 class="font-bold">لوحة التحكم والتنسيق</h2>
+            </div>
 
-                <!-- Control Tabs -->
-                <div class="flex border-b border-stone-850 mb-5 text-sm">
-                    <button onclick="switchTab('tab-content')" id="btn-tab-content" class="flex-1 py-2 text-center border-b-2 border-amber-500 text-amber-500 font-semibold transition">النصوص والبيانات</button>
-                    <button onclick="switchTab('tab-style')" id="btn-tab-style" class="flex-1 py-2 text-center border-b-2 border-transparent text-stone-400 hover:text-stone-200 transition">النمط والتنسيق</button>
-                </div>
-
-                <!-- Tab: Content editing -->
-                <div id="tab-content" class="space-y-4">
-                    <div>
-                        <label class="block text-xs text-stone-400 mb-1.5 font-semibold">العنوان الرئيسي للجريدة</label>
-                        <input type="text" id="input-top-title" oninput="requestRender()" value="مُتابعات ... مِصباح .. (مَقالات صَحفِيَّة)" class="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500 text-sm font-['Reem+Kufi']">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
+            <!-- Scrollable Settings -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar">
+                
+                <!-- Section 1: Content -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-pen-nib text-gray-500"></i> المحتوى النصي
+                    </h3>
+                    
+                    <div class="space-y-3">
                         <div>
-                            <label class="block text-xs text-stone-400 mb-1.5 font-semibold">التصنيف والوسوم</label>
-                            <input type="text" id="input-categories" oninput="requestRender()" value="ثَقافَة - أنْسابُ - تاريخ" class="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500 text-sm">
+                            <label class="block text-[11px] text-gray-400 mb-1">عنوان الجريدة الرئيسي</label>
+                            <input type="text" id="cfg-top-title" class="input-field w-full rounded-lg px-3 py-2 text-sm font-reem text-white" value="مُتابعات ... مِصباح .. (مَقالات صَحفِيَّة)">
                         </div>
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1.5 font-semibold">اسم الكاتب الكامل</label>
-                            <input type="text" id="input-author" oninput="requestRender()" value="بِقَلَمِ: صالِح بنِ مُحمَّدٍ آل عُمَيِّر الأَسْمَرِيّ" class="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500 text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-stone-400 mb-1.5 font-semibold">عنوان المقالة الفرعي</label>
-                        <input type="text" id="input-sub-title" oninput="requestRender()" value="لَقَبُ (الْأَسْمَرِيّ) قَبَلِيًّا... مَبْنًى ومَعْنًى" class="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2 text-stone-100 focus:outline-none focus:border-amber-500 text-sm font-bold">
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label class="block text-xs text-stone-400 font-semibold">متن المقالة (كامل بجميع صفحاته الثلاث)</label>
-                            <span class="text-[10px] bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded-full font-mono font-semibold"><i class="fa-solid fa-code-merge"></i> استخراج ذكي للحواشي عبر &lt;&gt;</span>
-                        </div>
-                        <textarea id="input-body-text" oninput="requestRender()" rows="12" class="w-full bg-stone-900 border border-stone-800 rounded-xl px-3 py-2.5 text-stone-100 focus:outline-none focus:border-amber-500 text-xs font-mono leading-relaxed" placeholder="انسخ أو اكتب هنا..."></textarea>
-                    </div>
-                </div>
-
-                <!-- Tab: Style and Layout configuration -->
-                <div id="tab-style" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs text-stone-400 mb-2 font-semibold">مظهر ونوعية الورق الأثري</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="setPaperTheme('parchment')" id="btn-theme-parchment" class="bg-amber-100 text-stone-950 text-xs py-2.5 px-1 rounded-xl font-bold border-2 border-amber-600 transition">صحيفة أثرية</button>
-                            <button onclick="setPaperTheme('vintage')" id="btn-theme-vintage" class="bg-[#ebd9c0] text-stone-900 text-xs py-2.5 px-1 rounded-xl font-bold border border-stone-700 transition">جريدة معتقة</button>
-                            <button onclick="setPaperTheme('classic')" id="btn-theme-classic" class="bg-stone-100 text-stone-950 text-xs py-2.5 px-1 rounded-xl font-bold border border-stone-400 transition">جريدة كلاسيكية</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1.5 font-semibold">حجم خط المتن (بكسل)</label>
-                            <div class="flex items-center gap-2">
-                                <input type="range" id="input-font-size" min="11" max="18" value="13.5" step="0.5" oninput="updateFontSize(this.value)" class="w-full accent-amber-500">
-                                <span id="font-size-val" class="text-xs bg-stone-900 px-2.5 py-1 rounded-lg text-amber-500 font-mono">13.5px</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1.5 font-semibold">عدد الأعمدة الصحفية</label>
-                            <select id="input-column-count" onchange="requestRender()" class="w-full bg-stone-900 border border-stone-800 rounded-xl px-2.5 py-1.5 text-stone-100 focus:outline-none focus:border-amber-500 text-xs">
-                                <option value="2">عمودان (2)</option>
-                                <option value="3" selected>ثلاثة أعمدة (3)</option>
-                                <option value="4">أربعة أعمدة (4)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1.5 font-semibold">تباعد الأسطر</label>
-                            <input type="range" id="input-line-height" min="1.3" max="2.0" value="1.55" step="0.05" oninput="requestRender()" class="w-full accent-amber-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1.5 font-semibold">الهوامش الجانبية (بكسل)</label>
-                            <input type="range" id="input-margin-size" min="30" max="65" value="45" step="5" oninput="requestRender()" class="w-full accent-amber-500">
-                        </div>
-                    </div>
-
-                    <!-- Custom Images loading -->
-                    <div class="bg-stone-900/60 p-4 rounded-xl border border-stone-800 space-y-3.5">
-                        <span class="block text-xs font-bold text-amber-500"><i class="fa-solid fa-photo-film"></i> إدارة الصور والوثائق على الكانفاس</span>
                         
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] text-stone-400">الصورة الشخصية للكاتب (ملف: image_b35c44.jpg):</label>
-                            <div class="flex items-center justify-between bg-stone-950 p-2 rounded-lg border border-stone-800">
-                                <span id="author-img-status" class="text-[10px] text-emerald-500"><i class="fa-solid fa-circle-check"></i> جاهزة كمسار محلي</span>
-                                <input type="file" id="file-author" onchange="loadCustomImage(event, 'author')" class="hidden">
-                                <label for="file-author" class="bg-stone-800 hover:bg-stone-700 text-stone-300 text-[10px] py-1 px-2.5 rounded cursor-pointer">تحديث ملف مخصص</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">الوسوم / التصنيف</label>
+                                <input type="text" id="cfg-category" class="input-field w-full rounded-lg px-3 py-2 text-sm text-white" value="ثَقافَة - أنْسابُ - تاريخ">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">اسم الكاتب</label>
+                                <input type="text" id="cfg-author" class="input-field w-full rounded-lg px-3 py-2 text-sm text-white" value="بِقَلَمِ: صالِح بنِ مُحمَّدٍ الأَسْمَرِيّ">
                             </div>
                         </div>
 
-                        <div class="space-y-1.5">
-                            <label class="block text-[11px] text-stone-400">صورة قرار اللجنة اللغوية (ملف: image_b3c8e5.jpg):</label>
-                            <div class="flex items-center justify-between bg-stone-950 p-2 rounded-lg border border-stone-800">
-                                <span id="doc-img-status" class="text-[10px] text-emerald-500"><i class="fa-solid fa-circle-check"></i> جاهزة كمسار محلي</span>
-                                <input type="file" id="file-doc" onchange="loadCustomImage(event, 'doc')" class="hidden">
-                                <label for="file-doc" class="bg-stone-800 hover:bg-stone-700 text-stone-300 text-[10px] py-1 px-2.5 rounded cursor-pointer">تحديث ملف مخصص</label>
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-1">عنوان المقال (الفرعي)</label>
+                            <input type="text" id="cfg-subtitle" class="input-field w-full rounded-lg px-3 py-2 text-sm font-bold text-gold-400" value="لَقَبُ (الْأَسْمَرِيّ) قَبَلِيًّا... مَبْنًى ومَعْنًى">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-end mb-1">
+                                <label class="block text-[11px] text-gray-400">متن المقال (يدعم الحواشي &lt;...&gt;)</label>
+                                <button onclick="document.getElementById('cfg-body').value=''" class="text-[10px] text-red-400 hover:text-red-300"><i class="fa-solid fa-trash-can"></i> مسح</button>
+                            </div>
+                            <textarea id="cfg-body" rows="8" class="input-field w-full rounded-lg px-3 py-2.5 text-xs font-mono text-gray-300 leading-relaxed resize-y custom-scrollbar" placeholder="اكتب أو انسخ النص هنا..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-white/5">
+
+                <!-- Section 2: Style & Typography -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-gray-500"></i> المظهر والتنسيق
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Paper Theme -->
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-2">نوع الورق</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button onclick="setTheme('parchment')" id="theme-parchment" class="theme-btn relative overflow-hidden rounded-lg p-2 border-2 border-gold-500 bg-[#f4ecd8] text-dark-900 shadow-lg scale-105 transition-all">
+                                    <span class="block text-[10px] font-bold">مخطوطة</span>
+                                </button>
+                                <button onclick="setTheme('vintage')" id="theme-vintage" class="theme-btn relative overflow-hidden rounded-lg p-2 border border-transparent bg-[#d9c0a3] text-dark-900 opacity-70 hover:opacity-100 hover:scale-105 transition-all">
+                                    <span class="block text-[10px] font-bold">عتيق</span>
+                                </button>
+                                <button onclick="setTheme('classic')" id="theme-classic" class="theme-btn relative overflow-hidden rounded-lg p-2 border border-transparent bg-[#fbfbf9] text-dark-900 opacity-70 hover:opacity-100 hover:scale-105 transition-all">
+                                    <span class="block text-[10px] font-bold">كلاسيكي</span>
+                                </button>
+                                <button onclick="setTheme('royal')" id="theme-royal" class="theme-btn relative overflow-hidden rounded-lg p-2 border border-transparent bg-[#e5d3b3] text-dark-900 opacity-70 hover:opacity-100 hover:scale-105 transition-all shadow-[inset_0_0_10px_rgba(0,0,0,0.2)]">
+                                    <span class="block text-[10px] font-bold">ملكي</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Typography controls -->
+                        <div class="grid grid-cols-2 gap-4 bg-dark-800/50 p-3 rounded-xl border border-white/5">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-2">نوع خط المتن</label>
+                                <select id="cfg-font-family" class="input-field w-full rounded-lg px-2 py-1.5 text-xs text-white">
+                                    <option value="Amiri">أميري (تقليدي)</option>
+                                    <option value="Tajawal">تجوال (عصري)</option>
+                                    <option value="Cairo">كايرو (عريض)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-2">الأعمدة الصحفية</label>
+                                <select id="cfg-columns" class="input-field w-full rounded-lg px-2 py-1.5 text-xs text-white">
+                                    <option value="1">عمود واحد (1)</option>
+                                    <option value="2">عمودان (2)</option>
+                                    <option value="3" selected>ثلاثة أعمدة (3)</option>
+                                    <option value="4">أربعة أعمدة (4)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Sliders -->
+                        <div class="space-y-4 bg-dark-800/50 p-3 rounded-xl border border-white/5">
+                            <div>
+                                <div class="flex justify-between mb-1 text-[11px] text-gray-400">
+                                    <span>حجم الخط</span>
+                                    <span id="lbl-font-size" class="text-gold-400 font-mono">13.5px</span>
+                                </div>
+                                <input type="range" id="cfg-font-size" min="10" max="22" step="0.5" value="13.5">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-[11px] text-gray-400">
+                                    <span>تباعد الأسطر</span>
+                                    <span id="lbl-line-height" class="text-gold-400 font-mono">1.6</span>
+                                </div>
+                                <input type="range" id="cfg-line-height" min="1.2" max="2.5" step="0.1" value="1.6">
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1 text-[11px] text-gray-400">
+                                    <span>الهوامش</span>
+                                    <span id="lbl-margin" class="text-gold-400 font-mono">45px</span>
+                                </div>
+                                <input type="range" id="cfg-margin" min="20" max="80" step="5" value="45">
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Right Side: Beautiful BroadSheet Canvas Preview Container -->
-        <div class="lg:col-span-8 flex flex-col items-center">
-            <div class="mb-3 text-stone-400 text-xs flex items-center justify-between w-full bg-stone-950/90 px-4 py-3 rounded-xl border border-stone-850">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-notch text-amber-500 animate-spin"></i>
-                    <span>لوحة العرض التفاعلية المباشرة (يرسم بالكامل على الكانفاس بمسار حقيقي)</span>
-                </div>
-                <div class="text-[10px] bg-stone-900 px-3 py-1 rounded-full border border-stone-800">
-                    جودة التصدير: <span class="text-amber-500 font-bold font-mono">1200x2400 (تحديث مرن للارتفاع)</span>
+                <hr class="border-white/5">
+
+                <!-- Section 3: Media -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-images text-gray-500"></i> الوسائط والصور
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <!-- Author Image -->
+                        <div class="bg-dark-800/80 p-3 rounded-xl border border-white/5 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div id="preview-author" class="w-10 h-10 rounded-full bg-dark-600 border border-gold-500/30 bg-cover bg-center"></div>
+                                <div>
+                                    <span class="block text-[11px] text-white">صورة الكاتب</span>
+                                    <span class="block text-[9px] text-emerald-400">مرفوعة محلياً</span>
+                                </div>
+                            </div>
+                            <input type="file" id="file-author" class="hidden" accept="image/*">
+                            <button onclick="document.getElementById('file-author').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">تغيير</button>
+                        </div>
+
+                        <!-- Doc Image -->
+                        <div class="bg-dark-800/80 p-3 rounded-xl border border-white/5 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div id="preview-doc" class="w-10 h-12 rounded bg-dark-600 border border-white/10 bg-cover bg-center"></div>
+                                <div>
+                                    <span class="block text-[11px] text-white">الوثيقة / الشعار</span>
+                                    <span class="block text-[9px] text-emerald-400">مرفوعة محلياً</span>
+                                </div>
+                            </div>
+                            <input type="file" id="file-doc" class="hidden" accept="image/*">
+                            <button onclick="document.getElementById('file-doc').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">تغيير</button>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </aside>
 
-            <!-- Canvas Wrapper for scaling and scroll preview -->
-            <div class="w-full overflow-auto bg-stone-950/50 p-4 rounded-2xl border border-stone-850 flex justify-center items-start min-h-[600px]">
-                <div id="canvas-wrapper" class="origin-top transition-all duration-150" style="transform: scale(0.65);">
-                    <canvas id="broadsheet-canvas" width="1200" height="2450" class="canvas-container bg-[#fcf9f2] rounded-md shadow-2xl block"></canvas>
+        <!-- Canvas Preview Area -->
+        <div class="flex-1 relative bg-dark-900 overflow-hidden flex flex-col">
+            
+            <!-- Canvas Toolbar overlay -->
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 z-30 glass-panel px-4 py-2 rounded-full flex items-center gap-3 pointer-events-none shadow-lg">
+                <i class="fa-solid fa-wand-magic-sparkles text-gold-500"></i>
+                <span class="text-xs font-medium text-gray-200">عرض حي (Real-time Rendering)</span>
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+            </div>
+
+            <!-- Scrollable Canvas Wrapper -->
+            <div id="scroll-container" class="flex-1 overflow-auto w-full h-full custom-scrollbar relative flex items-start justify-center p-10 cursor-grab active:cursor-grabbing">
+                
+                <!-- Transform wrapper -->
+                <div id="zoom-wrapper" class="origin-top transition-transform duration-100 ease-out relative">
+                    
+                    <!-- The Canvas -->
+                    <canvas id="paper-canvas" width="1200" height="1500" class="canvas-shadow bg-white rounded-sm"></canvas>
+                    
+                    <!-- Loading Overlay -->
+                    <div id="render-overlay" class="rendering-overlay rounded-sm">
+                        <div class="flex flex-col items-center text-gold-500">
+                            <i class="fa-solid fa-circle-notch animate-spin text-3xl mb-2"></i>
+                            <span class="text-sm font-bold font-reem">جاري التصفيف...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Core Script System -->
+    <!-- Script Application -->
     <script>
-        // Preset 3-page full article text
-        const completeArticleText = `🔳 جَاءَ فِي كِتَابِ: "مُعْجَمِ قَبَائِلِ الْمَمْلَكَةِ الْعَرَبِيَّةِ السُّعُودِيَّةِ" (ص/22) لِلْأُسْتَاذِ حَمَدِ الْجَاسِرِ رَحِمَهُ اللَّهُ مَا نَصُّهُ: "بَالْأَسْمَرِ: بَنُو الْأَسْمَرِ، وَيُنْطَقُ الِاسْمُ أَحْيَاناً بِتَشْدِيدِ اللَّامِ: بَلَّسْمَر، وَقَدْ يُكْتَبُ خَطَأً: بَلَّلْسْمَر؛ إِحْدَى قَبَائِلِ الْحَجْرِ، وَالنِّسْبَةُ إِلَيْهَا: أَسْمَرِيٌّ" انْتَهَى.
-
-هَذَا وَ"الْأَسْمَرُ: هُوَ جَدُّ (قَبِيلَةِ بَلَّسْمَر)<وقَد أُطلِق هذا اللَّقَب على غَير هذه القَبيلَة كطائفةٍ ببلادِ المَغرب الأَقصى-لِيبيا...ولَها جامعةٌ بهذا الاسم...وهُنا تَعريفٌ بها: الأثر العلمي للمنارة الأسمرية الأستاذ الدكتور عمر التومي الشيباني نموذجا https://journals.asmarya.edu.ly/jau/index.php/jau/article/view/423>؛ وَهُوَ أَسْمَرُ بْنُ حَجْرِ بْنِ الْهِنُوءِ بْنِ الْأَزْدِ بْنِ كَهْلَانَ بْنِ يَشْجُبَ بْنِ سَبَأَ بْنِ يَعْرُبَ بْنِ قَحْطَانَ<كنتُ -بِحَمْدِ اللهِ- قد أَبَنتُ عن نَسَبِ (قَبيلَة بَلَّسْمَر) مَع فُروعِها في كتابِ أَفْرَدتُه لِذلكَ، عُنوانُه: "قَبِيلَة بَلَّسْمَر..نَسَبُها وفُرُوعُها">، وَقَدْ سُمِّيَتِ الْبِلَادُ الَّتِي يَسْكُنُهَا بَنُوهُ بِاسْمِهِ [مَوْسُوعَةُ الْقَبَائِلِ الْعَرَبِيَّةِ (10/243) لِمُحَمَّدِ الطَّيِّبِ]، فَقِيلَ عَنْها: بِلادُ بَلَّسْمَر.
-
-وعَلَيه: فَهذهِ تَعليقَةٌ مُختَصَرَةٌ على ذلِكَ... أَسُوقها في إِطارَين:
-
-➖أَوّلُهما: إِطار المَبنَى اللَّفْظِي لـ(بَلَّسْمَر)
-
-إِذ إِنَّ النِّسْبَةَ للْقَبيلَةِ هِي: (بَنُو الْأَسْمَرِ) ؛ لكنَّها قَد أُحِيلَتْ إِلى (بَلَّسْمَر) عَمَلًا بِنَحو قَولِ المُبَرَّد رحمَه اللهُ في: <الكامل> (3/299) فِي آخَرينَ: "كُلُّ اسْمٍ مِنْ أَسْمَاءِ الْقَبَائِلِ تَظْهَرُ فِيهِ لَامُ الْمَعْرِفَةِ، فَإِنَّهُمْ يُجِيزُونَ مَعَهُ حَذْفَ النُّونِ الَّتِي فِي قَوْلِكَ (بَنُو) لِقُرْبِ مَخْرَجِ النُّونِ مِنَ اللَّامِ، وَذَلِكَ قَوْلُكَ – فُلَانٌ مِنْ بَلْحَرِثِ وَبَلْعَنْبَرِ وَبَلْلهُجَيْمِ" انتهى.
-
-وهذا الصَّنِيعُ مِنْهُم عِلَّتُه التَّخفِيفُ على اللِّسانِ<لأنّهم قرَّروا أَنّه "مِمَّا حُذِفَ اسْتِخْفَافاً؛ لِأَنَّ مَا ظَهَرَ دَلِيلٌ عَلَيْهِ قَوْلُهُمْ فِي كُلِّ قَبِيلَةٍ تَظْهَرُ فِيهِ لَامُ الْمَعْرِفَةِ مِثْلَ: بَنِي الْحَارِثِ، وَبَنِي الْهُجَيْمِ، وَبَنِي الْعَنْبَرِ: هُوَ بَلْعَنْبَرُ وَبَلْلهُجَيْمُ، فَيَحْذِفُونَ النُّونَ لِقُرْبِهَا مِنَ اللَّامِ لِأَنَّهُمْ يَكْرَهُونَ التَّضْعِيفَ، فَإِنْ كَانَ مِثْلَ: بَنِي النَّجَّارِ، وَالنَّمِرِ، وَالتَّيْمِ؛ لَمْ يَحْذِفُوا لِئَلَّا يَجْمَعُوا عَلَيْهِ عِلَّتَيْنِ: الْإِدْغَامَ وَالْحَذْفَ. وَيَقُولُونَ: عَلْمَاءِ بَنُو فُلَانٍ، يُرِيدُونَ: عَلَى الْمَاءِ، فَيَحْذِفُونَ لَامَ (عَلَى) كَمَا قَالَ: وَمَا سُبِقَ الْقَيْسِيُّ مِنْ ضَعْفِ حِيلَةٍ .=. وَلَكِنْ طَفَتْ عَلْمَاءِ قُلْفَةُ خَالِدِ [المُقتَضَب (1/251) للمُبَرّد]">، وإِنْ كانَ شاذًّا عن القاعِدَة؛ لِذا قالَ سِيبَويهِ رَحمَه اللهُ في: <الكِتاب> (2/430) : "وَمِنَ الشَّاذِّ قَوْلُهُمْ فِي بَنِي الْعَنْبَرِ وَبَنِي الْحَارِثِ: بَلْعَنْبَرُ وَبَلْحَارِثُ، بِحَذْفِ النُّونِ، وَكَذَلِكَ يَفْعَلُونَ بِكُلِّ قَبِيلَةٍ تَظْهَرُ فِيهَا لَامُ الْمَعْرِفَةِ، فَأَمَّا إِذَا لَمْ تَظْهَرِ اللَّامُ فِيهَا فَلَا يَكُونُ ذَلِكَ؛ لِأَنَّهَا لَمَّا كَانَتْ مِمَّا كَثُرَ فِي كَلَامِهِمْ، وَكَانَتِ اللَّامُ وَالنُّونُ قَرِيبَتَيِ الْمَخَارِجِ، حَذَفُوهَا" انتهى.
-
-وقَالَ ابْنُ جِنِّيٍّ رَحمَه الله فِي: <الْمُبْهِجِ>: "الْعَرَبُ تَقُولُ: بَلْعَنْبَرُ وَبَلْحَارِثُ، يُرِيدُونَ: بَنِي الْعَنْبَرِ وَبَنِي الْحَارِثِ، فَيَحْذِفُونَ الْيَاءَ لِسُكُونِهَا وَسُكُونِ اللَّامِ مِنْ بَعْدِهَا، ثُمَّ يَحْذِفُونَ النُّونَ لِأَمْرَيْنِ: أَحَدُهُمَا كَثْرَةُ الِاسْتِعْمَالِ، وَالْآخَرُ مُشَابَهَةُ النُّونِ لِلَّامِ فَكَأَنَّهُ يُكْرَهُ فَيُحْذَفُ".
-
-ويَنبَغِي التَّنَبُّه إِلى أَنَّ رَسْمَ كَلِمَةِ: (بَلَّسْمَرُ) يَكُونُ بِـلَامٍ وَاحِدَةٍ مُشَدَّدَةٍ؛ لِأَنَّهُ لَيْسَ فِيهَا لَامَانِ لَا فِي أَصْلِ اللَّفْظِ مُفْرَداً، وَلَا بَعْدَ الْإِدْغَامِ الْمَذْكُورِ، وبِهذا صَدَرَ قرارُ لَجنةِ اللغَةِ في جامعة الملك خالد رحمه الله ذِي الرَّقَم: (20) بِتاريخ: (27/7/1442هـ)<وتَرى صُورتَه مُرفقَة، وكانَ يُكتَب سابِقًا بلامَين هكذا: (بَلَّلسْمَر) بِناءً على أَنّ أَصلَ اللَّقَب القَبلي هو: (بَنو آَل الأَسمَر)، ووجه ذلك كان بـ "إِسْقَاطِ هَمْزَةِ (الْأَسْمَرِ) وَنَقْلِ حَرَكَتِهَا إِلَى السَّاكِنِ قَبْلَهَا فَصَارَتْ: (بَنُو آلِ لَسْمَرُ)، ثُمَّ أُدْغِمَتِ اللَّامُ فِي اللَّامِ فَأَصْبَحَتِ اللَّامُ مُشَدَّدَةً، ثُمَّ أُسْقِطَتْ هَمْزَةُ (آلِ) تَخْفِيفاً، وَحُذِفَتِ (الْوَاوُ) مِنْ (بَنُو) لِالْتِقَاءِ السَّاكِنَيْنِ، مَعَ مُعَامَلَةِ الْخَطِّ مُعَامَلَةَ اللَّفْظِ، فَنَتَجَ عَنْ ذَلِكَ لَامَانِ فِي اللَّقَبِ؛ لَامٌ أُولَى لِلَمْحِ الْأَصْلِ، وَلَامٌ أُخْرَى هِيَ لَامُ (الْأَسْمَرِ)" [عن: مَجمَع اللغة العربية بمكة (رقم:2/3571) بتاريخ (9/7/1442هـ)]. وَيَرُدُّهُ: أَنَّ تَقْدِيرَ (آلِ) بَيْنَ كَلِمَةِ (بَنُو) وَكَلِمَةِ (الْأَسْمَرِ) مُقْحَمٌ، وَلَيْسَ تَقدِيرًا مَعْرُوفَا عِنْدَ الْقَبِيلَةِ وَمَا جَاوَرَهَا، مَعَ كَوْنِ كَلِمَةِ (بَنُو) بِمَعْنَى (آلِ) فَقَامَتْ فِي التَّقْدِيرِ مَقَامَهَا، هَذَا وَالْأَصْلُ أَنَّ "الْكِتَابَةَ تَصْوِيرٌ لِنُطْقِ اللَّفْظِ، وَالْعِبْرَةُ بِنُطْقِ ذَلِكَ اللَّفْظِ لَا بِتَصْوِيرِهِ" [تاريخ القرآن الكريم (ص/132)]> واعتُمِد مِن وِزارَة الداخِلية بالمملكة العربية السعودية -حرَسها الله.
-
-➖والثاني: إِطَارُ مَعْنَى لَفْظِ (أَسْمَرُ)
-
-إِذْ إِنَّ (بَنِي الأَسمَرَ) نِسبَةٌ لـ(أَفْعَلَ) مِن سَمُر، قال ابنُ فارِسٍ رحمَه الله في: <مَقاييس اللُّغَة> (3/100) : "السِّينُ وَالْمِيمُ وَالرَّاءُ أَصْلٌ وَاحِدٌ يَدُلُّ عَلَى خِلَافِ الْبَيَاضِ فِي اللَّوْنِ. مِنْ ذَلِكَ السُّمْرَةُ مِنَ الْأَلْوَانِ<قال في: <لسان العرب>: "السُّمْرَةُ: مَنْزِلَةٌ بَيْنَ الْبَيَاضِ وَالسَّوَادِ... وَرَجُلٌ أَسْمَرُ، وَالْأُنْثَى سَمْرَاءُ" و"الْأُدْمَةُ لَوْنُ الْعَرَبِ، وَهِيَ السُّمْرَةُ فِي الرِّجَالِ" [الاستذكار (8/333) لابن عبدالبر]>. وَأَصْلُهُ قَوْلُهُمْ «لَا آتِيكَ السَّمَرَ وَالْقَمَرَ»، فَالْقَمَرُ: الْقَمَرُ. وَالسَّمَرُ: سَوَادُ اللَّيْلِ، وَمِنْ ذَلِكَ سُمِّيَتِ السُّمْرَةُ" انتهى المراد.
-
-ومِن المَشهُورِ عندَ المُؤرِّخِينَ وأَربابِ السِّيَرِ وَصفُهم للعَرَبِ بالسُّمْرَةِ، ومِنه قَولُ أَبي عُبيد القاسِم بنِ سلام (ت/224) رحمه الله في: <غريب الحديث> (3/484) : "الْغَالِبُ عَلَى أَلْوَانِ الْعَرَبِ السُّمْرَةُ وَالْأُدْمَةُ، وَالْغَالِبُ عَلَى أَلْوَانِ الْعَجَمِ الْبَيَاضُ وَالْحُمْرَةُ" انتهى.
-
-وفي وصفِ المُصطَفى صلى الله عليه وآله وسلم عند التِّرْمِذِي رحمَه الله في: <الجامِع> (1754) عن أَنس بن مالِك رضي الله عنه أَنّه قال: (كان رسولُ اللهِ صلَّى اللهُ عليه وسلَّمَ رَبْعَةً؛ ليس بالطَّويلِ، ولا بالقَصيرِ، حسَنَ الجِسْمِ، أسمَرَ اللَّونِ، وكان شعْرُه ليس بجَعْدٍ ولا سَبْطٍ. إذا مشى يتوكَّأُ)<و"إسناده صحيحٌ" كما في: <فتح الباري> (658/6) وغيرِه، وتَبَيَّنَ مِنْ مَجْموعِ الرِّوَايَاتِ أَنَّ الْمُرَادَ بِالسُّمْرَةِ الْحُمْرَةُ الَّتِي تُخَالِطُ الْبَيَاضَ، وَأَنَّ الْمُرَادَ بِالْبَيَاضِ الْمُثْبَتِ مَا تُخَالِطُهُ الْحُمْرَةُ، وَالْمَنْفِيَّ مَا لَا يُخَالِطُهُ، وَهُوَ الَّذِي تَكْرَهُ الْعَرَبُ لَوْنَهُ وَتُسَمِّيهِ أَمْهَقَ>.
-
-لِذا "يَقُولُونَ فِي الْكِنَايَةِ عَنِ الْعَرَبِيِّ وَالْعَجَمِيِّ: الْأَسْوَدُ وَالْأَبْيَضُ. وَالْعَرَبُ تَقُولُ فِيهِمَا: الْأَسْوَدُ وَالْأَحْمَرُ، تَعْنِي الْعَرَبَ وَالْعَجَمَ؛ لِأَنَّ الْغَالِبَ عَلَى أَلْوَانِ الْعَرَبِ الْأُدْمَةُ وَالسُّمْرَةُ، وَالْغَالِبَ عَلَى أَلْوَانِ الْعَجَمِ الْبَيَاضُ وَالْحُمْرَةُ، وَالْعَرَبُ تُسَمِّي الْبَيْضَاءَ حَمْرَاءَ، كَمَا تُسَمِّي السَّوْدَاءَ خَضْرَاءَ" [درة الغواص (ص/204) للحريري].
-
-وقَد سَمَّى العَرَبُ بـ(أَسْمَرَ) مُنذُ القِدَمِ، ومِنهم بَعضُ أَصحابِ رَسولِ اللهِ صلّى الله عليه وآلِه وسلَّم، ففي: <أُسد الغابة> (1/220-221) للعِزّ ابنِ الأَثِير رحمَه الله مِنها: أَسْمَرُ بْنُ سَاعِدِ بْنِ هِلْوَاثٍ الْمَازِنِيُّ، وأَسْمَرُ بْنُ مُضَرِّسٍ الطَّائِيُّ رضي الله عنهما.`;
-
-        // UI and Scaling State
-        let currentZoom = 0.65;
-        let paperTheme = 'parchment';
-        let authorImage = new Image();
-        let docImage = new Image();
-        let renderingInProgress = false;
-
-        // Vintage & Broadsheet color palettes
-        const themes = {
-            parchment: { 
-                bg: '#f4ecd8', 
-                dark: '#ebd9b4', 
-                ink: '#231810', 
-                sepia: '#9c773a', 
-                doubleBorder: '#42311f',
-                lineColor: 'rgba(66, 49, 31, 0.15)'
+        /**
+         * System Configuration & State
+         */
+        const state = {
+            zoom: 0.65,
+            theme: 'parchment',
+            isDragging: false,
+            dragStartX: 0,
+            dragStartY: 0,
+            scrollStartX: 0,
+            scrollStartY: 0,
+            images: {
+                author: new Image(),
+                doc: new Image()
             },
-            vintage: { 
-                bg: '#ebd9c0', 
-                dark: '#d9c0a3', 
-                ink: '#1c130c', 
-                sepia: '#875d31', 
-                doubleBorder: '#4a321a',
-                lineColor: 'rgba(74, 50, 26, 0.2)'
-            },
-            classic: { 
-                bg: '#fbfbf9', 
-                dark: '#eae8e2', 
-                ink: '#1c1c1c', 
-                sepia: '#707070', 
-                doubleBorder: '#282828',
-                lineColor: 'rgba(40, 40, 40, 0.12)'
-            }
+            renderTimeout: null
         };
 
-        window.onload = function() {
-            // Pre-fill input editor with complete raw article
-            document.getElementById('input-body-text').value = completeArticleText;
-            
-            // Set source images matching user file variables
-            authorImage.src = 'image_b35c44.jpg';
-            docImage.src = 'image_b3c8e5.jpg';
+        // Paper Themes Palettes
+        const THEMES = {
+            parchment: { bg: '#f4ecd8', dark: '#e3d2ad', ink: '#231810', sepia: '#8a622a', border: '#42311f', lines: 'rgba(66, 49, 31, 0.15)', noise: 0.04 },
+            vintage:   { bg: '#e5d1b8', dark: '#ccae88', ink: '#1c130c', sepia: '#6b451b', border: '#3a2512', lines: 'rgba(58, 37, 18, 0.2)', noise: 0.06 },
+            classic:   { bg: '#fbfbf9', dark: '#e5e5e0', ink: '#111111', sepia: '#555555', border: '#222222', lines: 'rgba(0, 0, 0, 0.1)', noise: 0.02 },
+            royal:     { bg: '#e8ddc5', dark: '#d4af37', ink: '#1a1610', sepia: '#8c6b22', border: '#8c6b22', lines: 'rgba(140, 107, 34, 0.25)', noise: 0.03 }
+        };
 
-            // Establish error fallback to guarantee visual appearance on initial environment loading
-            authorImage.onerror = function() {
-                authorImage.src = 'https://placehold.co/400x520/22150c/fff9eb?text=فضيلة+الشيخ+صالح+الأسمري';
-            };
-            docImage.onerror = function() {
-                docImage.src = 'https://placehold.co/400x560/1a120b/fff9eb?text=وثيقة+جامعة+الملك+خالد';
-            };
+        // Default Text
+        const defaultText = `🔳 جَاءَ فِي كِتَابِ: "مُعْجَمِ قَبَائِلِ الْمَمْلَكَةِ الْعَرَبِيَّةِ السُّعُودِيَّةِ" (ص/22) لِلْأُسْتَاذِ حَمَدِ الْجَاسِرِ رَحِمَهُ اللَّهُ مَا نَصُّهُ: "بَالْأَسْمَرِ: بَنُو الْأَسْمَرِ، وَيُنْطَقُ الِاسْمُ أَحْيَاناً بِتَشْدِيدِ اللَّامِ: بَلَّسْمَر، وَقَدْ يُكْتَبُ خَطَأً: بَلَّلْسْمَر؛ إِحْدَى قَبَائِلِ الْحَجْرِ، وَالنِّسْبَةُ إِلَيْهَا: أَسْمَرِيٌّ" انْتَهَى.\n\nهَذَا وَ"الْأَسْمَرُ: هُوَ جَدُّ (قَبِيلَةِ بَلَّسْمَر)<وقَد أُطلِق هذا اللَّقَب على غَير هذه القَبيلَة كطائفةٍ ببلادِ المَغرب الأَقصى>؛ وَهُوَ أَسْمَرُ بْنُ حَجْرِ بْنِ الْهِنُوءِ... وَقَدْ سُمِّيَتِ الْبِلَادُ الَّتِي يَسْكُنُهَا بَنُوهُ بِاسْمِهِ.\n\n➖أَوّلُهما: إِطار المَبنَى اللَّفْظِي لـ(بَلَّسْمَر)\n\nإِذ إِنَّ النِّسْبَةَ للْقَبيلَةِ هِي: (بَنُو الْأَسْمَرِ) ؛ لكنَّها قَد أُحِيلَتْ إِلى (بَلَّسْمَر) عَمَلًا بِنَحو قَولِ المُبَرَّد رحمَه اللهُ فِي آخَرينَ<الكامل للمبرد (3/299)>: "كُلُّ اسْمٍ مِنْ أَسْمَاءِ الْقَبَائِلِ تَظْهَرُ فِيهِ لَامُ الْمَعْرِفَةِ، فَإِنَّهُمْ يُجِيزُونَ مَعَهُ حَذْفَ النُّونِ".`;
 
-            // Re-render when images load
-            authorImage.onload = () => requestRender();
-            docImage.onload = () => requestRender();
+        /**
+         * Initialization
+         */
+        window.onload = () => {
+            // Setup default text
+            document.getElementById('cfg-body').value = defaultText;
 
-            // Wait for system and Google Fonts to complete loading to draw flawlessly
-            document.fonts.ready.then(() => {
-                requestRender();
+            // Setup Default Images (Placeholders)
+            setupDefaultImage(state.images.author, 'https://placehold.co/400x520/231810/e3d2ad?text=الكاتب', 'preview-author');
+            setupDefaultImage(state.images.doc, 'https://placehold.co/400x560/231810/e3d2ad?text=وثيقة', 'preview-doc');
+
+            // Attach Listeners to inputs
+            const inputs = document.querySelectorAll('input[type="text"], textarea, select');
+            inputs.forEach(input => input.addEventListener('input', scheduleRender));
+
+            const ranges = ['font-size', 'line-height', 'margin'];
+            ranges.forEach(id => {
+                document.getElementById(`cfg-${id}`).addEventListener('input', (e) => {
+                    document.getElementById(`lbl-${id}`).innerText = e.target.value + (id==='line-height'?'':'px');
+                    scheduleRender();
+                });
             });
 
-            // Safeguard delay to assure canvas initialization
-            setTimeout(requestRender, 1000);
+            // Image Upload Listeners
+            document.getElementById('file-author').addEventListener('change', (e) => handleImageUpload(e, 'author'));
+            document.getElementById('file-doc').addEventListener('change', (e) => handleImageUpload(e, 'doc'));
+
+            // Setup Canvas Panning (Drag to scroll)
+            setupCanvasPanning();
+
+            // Setup Zoom via Mouse Wheel with Ctrl
+            document.getElementById('scroll-container').addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    zoom(e.deltaY > 0 ? -0.05 : 0.05);
+                }
+            }, { passive: false });
+
+            // Initial Render
+            document.fonts.ready.then(() => {
+                applyZoom();
+                renderCanvas();
+                showToast("تم تهيئة بيئة العمل بنجاح", "success");
+            });
         };
 
-        function switchTab(tabId) {
-            document.getElementById('tab-content').classList.add('hidden');
-            document.getElementById('tab-style').classList.add('hidden');
-            document.getElementById('btn-tab-content').className = "flex-1 py-2 text-center border-b-2 border-transparent text-stone-400 hover:text-stone-200 transition";
-            document.getElementById('btn-tab-style').className = "flex-1 py-2 text-center border-b-2 border-transparent text-stone-400 hover:text-stone-200 transition";
-
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('btn-' + tabId).className = "flex-1 py-2 text-center border-b-2 border-amber-500 text-amber-500 font-semibold transition";
+        function setupDefaultImage(imgObj, src, previewId) {
+            imgObj.crossOrigin = "Anonymous"; // Prevent canvas tainting if possible
+            imgObj.onload = () => {
+                document.getElementById(previewId).style.backgroundImage = `url(${imgObj.src})`;
+                scheduleRender();
+            };
+            imgObj.src = src;
         }
 
-        function loadCustomImage(event, target) {
+        function handleImageUpload(event, target) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const tempImg = new Image();
-                    tempImg.onload = function() {
-                        if (target === 'author') {
-                            authorImage = tempImg;
-                            document.getElementById('author-img-status').innerHTML = `<i class="fa-solid fa-check-double text-emerald-500"></i> تم تحديث صورة الكاتب`;
-                        } else {
-                            docImage = tempImg;
-                            document.getElementById('doc-img-status').innerHTML = `<i class="fa-solid fa-check-double text-emerald-500"></i> تم تحديث وثيقة القرار`;
-                        }
-                        requestRender();
-                    };
-                    tempImg.src = e.target.result;
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.images[target].onload = () => {
+                    document.getElementById(`preview-${target}`).style.backgroundImage = `url(${e.target.result})`;
+                    showToast("تم تحديث الصورة بنجاح", "success");
+                    scheduleRender();
                 };
-                reader.readAsDataURL(file);
-            }
+                state.images[target].src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
-        function setPaperTheme(theme) {
-            paperTheme = theme;
+        /**
+         * UI Actions
+         */
+        function setTheme(themeName) {
+            state.theme = themeName;
             
-            document.getElementById('btn-theme-parchment').className = "bg-stone-900 text-stone-400 text-xs py-2.5 px-1 rounded-xl border border-stone-800 transition";
-            document.getElementById('btn-theme-vintage').className = "bg-stone-900 text-stone-400 text-xs py-2.5 px-1 rounded-xl border border-stone-800 transition";
-            document.getElementById('btn-theme-classic').className = "bg-stone-900 text-stone-400 text-xs py-2.5 px-1 rounded-xl border border-stone-800 transition";
+            // Reset buttons
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.className = "theme-btn relative overflow-hidden rounded-lg p-2 border border-transparent opacity-70 hover:opacity-100 hover:scale-105 transition-all";
+            });
+            
+            // Set active
+            const activeBtn = document.getElementById(`theme-${themeName}`);
+            activeBtn.className = "theme-btn relative overflow-hidden rounded-lg p-2 border-2 border-gold-500 scale-105 transition-all shadow-lg";
+            activeBtn.classList.add(themeName === 'royal' ? 'shadow-[inset_0_0_10px_rgba(0,0,0,0.2)]' : 'shadow-none');
+            
+            // Match active bg color from THEMES
+            activeBtn.style.backgroundColor = THEMES[themeName].bg;
+            document.querySelectorAll('.theme-btn:not(#theme-'+themeName+')').forEach(b => {
+                b.style.backgroundColor = THEMES[b.id.split('-')[1]].bg;
+            });
 
-            if (theme === 'parchment') {
-                document.getElementById('btn-theme-parchment').className = "bg-amber-100 text-stone-950 text-xs py-2.5 px-1 rounded-xl font-bold border-2 border-amber-600 transition";
-            } else if (theme === 'vintage') {
-                document.getElementById('btn-theme-vintage').className = "bg-[#ebd9c0] text-stone-900 text-xs py-2.5 px-1 rounded-xl font-bold border-2 border-amber-800 transition";
-            } else if (theme === 'classic') {
-                document.getElementById('btn-theme-classic').className = "bg-stone-100 text-stone-950 text-xs py-2.5 px-1 rounded-xl font-bold border-2 border-stone-400 transition";
-            }
-
-            requestRender();
+            scheduleRender();
         }
 
-        function updateFontSize(val) {
-            document.getElementById('font-size-val').innerText = `${val}px`;
-            requestRender();
-        }
-
-        function zoomCanvas(amount) {
-            currentZoom += amount;
-            if (currentZoom < 0.25) currentZoom = 0.25;
-            if (currentZoom > 1.4) currentZoom = 1.4;
-            document.getElementById('canvas-wrapper').style.transform = `scale(${currentZoom})`;
+        function zoom(delta) {
+            state.zoom += delta;
+            state.zoom = Math.max(0.2, Math.min(state.zoom, 2.0)); // Clamp between 20% and 200%
+            applyZoom();
         }
 
         function resetZoom() {
-            currentZoom = 0.65;
-            document.getElementById('canvas-wrapper').style.transform = `scale(${currentZoom})`;
+            state.zoom = 0.65;
+            applyZoom();
         }
 
-        function requestRender() {
-            if (renderingInProgress) return;
-            renderingInProgress = true;
+        function applyZoom() {
+            document.getElementById('zoom-wrapper').style.transform = `scale(${state.zoom})`;
+            document.getElementById('zoom-level-display').innerText = Math.round(state.zoom * 100) + '%';
+        }
+
+        function setupCanvasPanning() {
+            const container = document.getElementById('scroll-container');
             
-            window.requestAnimationFrame(() => {
-                renderBroadSheet();
-                renderingInProgress = false;
+            container.addEventListener('mousedown', (e) => {
+                // Only pan if clicking on the background, not specifically the canvas itself if we had interaction inside
+                state.isDragging = true;
+                state.dragStartX = e.pageX;
+                state.dragStartY = e.pageY;
+                state.scrollStartX = container.scrollLeft;
+                state.scrollStartY = container.scrollTop;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!state.isDragging) return;
+                e.preventDefault();
+                const x = e.pageX - state.dragStartX;
+                const y = e.pageY - state.dragStartY;
+                container.scrollLeft = state.scrollStartX - x;
+                container.scrollTop = state.scrollStartY - y;
+            });
+
+            window.addEventListener('mouseup', () => {
+                state.isDragging = false;
             });
         }
 
-        function renderBroadSheet() {
-            const canvas = document.getElementById('broadsheet-canvas');
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icon = type === 'success' ? '<i class="fa-solid fa-check-circle text-emerald-400"></i>' : 
+                         type === 'error' ? '<i class="fa-solid fa-triangle-exclamation text-red-400"></i>' :
+                         '<i class="fa-solid fa-info-circle text-gold-400"></i>';
+            
+            toast.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-lg shadow-2xl border border-white/10 bg-dark-800 text-white text-sm`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px) translateX(-50%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /**
+         * Core Rendering Engine
+         */
+        function scheduleRender() {
+            if(state.renderTimeout) clearTimeout(state.renderTimeout);
+            document.getElementById('zoom-wrapper').classList.add('is-rendering');
+            
+            state.renderTimeout = setTimeout(() => {
+                renderCanvas();
+                document.getElementById('zoom-wrapper').classList.remove('is-rendering');
+            }, 300); // Debounce to prevent lag
+        }
+
+        function renderCanvas(scaleMultiplier = 1) {
+            const canvas = document.getElementById('paper-canvas');
             const ctx = canvas.getContext('2d');
             
-            // Collect user configurations from panels
-            const topTitle = document.getElementById('input-top-title').value;
-            const categories = document.getElementById('input-categories').value;
-            const subTitle = document.getElementById('input-sub-title').value;
-            const author = document.getElementById('input-author').value;
-            const bodyRawText = document.getElementById('input-body-text').value;
-            
-            const fontSize = parseFloat(document.getElementById('input-font-size').value);
-            const numColumns = parseInt(document.getElementById('input-column-count').value);
-            const lineHeightMultiplier = parseFloat(document.getElementById('input-line-height').value);
-            const margin = parseInt(document.getElementById('input-margin-size').value);
-            
-            const theme = themes[paperTheme];
+            // 1. Get Config
+            const logicalWidth = 1200; // Fixed internal logical width
+            const config = {
+                title: document.getElementById('cfg-top-title').value || 'بدون عنوان',
+                category: document.getElementById('cfg-category').value,
+                author: document.getElementById('cfg-author').value,
+                subtitle: document.getElementById('cfg-subtitle').value,
+                body: document.getElementById('cfg-body').value,
+                fontFamily: document.getElementById('cfg-font-family').value,
+                fontSize: parseFloat(document.getElementById('cfg-font-size').value),
+                lineHeight: parseFloat(document.getElementById('cfg-line-height').value),
+                columns: parseInt(document.getElementById('cfg-columns').value),
+                margin: parseInt(document.getElementById('cfg-margin').value),
+                width: logicalWidth 
+            };
+            const theme = THEMES[state.theme];
 
-            // 1. EXTRACT SMART FOOTNOTES BETWEEN <...>
+            // 2. Parse Footnotes & Clean Text
+            let { cleanedText, footnotes } = parseFootnotes(config.body);
+
+            // 3. Layout Calculation Phase
+            // We need to calculate height BEFORE drawing background
+            const colGap = 35;
+            const usableWidth = config.width - (config.margin * 2);
+            const colWidth = (usableWidth - ((config.columns - 1) * colGap)) / config.columns;
+            
+            ctx.textBaseline = 'top'; // Easier math
+
+            // Build layout items
+            let items = calculateTextFlow(ctx, cleanedText, colWidth, config.fontSize, config.fontFamily, config.lineHeight);
+            
+            // Calculate Heights
+            const headerHeight = 450;
+            let totalTextHeight = items.reduce((sum, item) => sum + item.height, 0);
+            const contentHeightPerColumn = Math.ceil(totalTextHeight / config.columns) + 50; // Add padding
+            
+            // Footnotes Height
+            let footnotesHeight = 0;
+            if(footnotes.length > 0) {
+                ctx.font = `12px 'Tajawal', sans-serif`;
+                footnotesHeight += 60; // Title
+                footnotes.forEach(fn => {
+                    const lines = wrapText(ctx, `${fn.num}. ${fn.text}`, usableWidth);
+                    footnotesHeight += lines.length * 20 + 5;
+                });
+            }
+
+            // Set final Canvas Height dynamically
+            const logicalHeight = headerHeight + contentHeightPerColumn + footnotesHeight + 100;
+            
+            // Apply High-Res Scaling for Export
+            canvas.width = logicalWidth * scaleMultiplier;
+            canvas.height = logicalHeight * scaleMultiplier;
+            ctx.scale(scaleMultiplier, scaleMultiplier);
+
+            // 4. Drawing Phase (Using Logical Dimensions)
+            
+            // Background
+            drawPaperBackground(ctx, logicalWidth, logicalHeight, theme);
+            
+            // Frame
+            drawBorders(ctx, logicalWidth, logicalHeight, theme);
+            
+            // Header (Ribbons, Titles)
+            drawHeader(ctx, config, theme, headerHeight);
+            
+            // Images
+            drawImages(ctx, config, theme);
+
+            // Columns (Text)
+            drawColumns(ctx, items, config, theme, headerHeight, colWidth, colGap, contentHeightPerColumn);
+
+            // Footnotes
+            if(footnotes.length > 0) {
+                drawFootnotesSection(ctx, footnotes, config, theme, headerHeight + contentHeightPerColumn, usableWidth);
+            }
+
+            // Footer
+            drawFooter(ctx, config.margin, logicalHeight, theme, logicalWidth);
+        }
+
+        /**
+         * Drawing Sub-routines
+         */
+        function parseFootnotes(rawText) {
             let cleanedText = '';
             let footnotes = [];
             let fnCount = 1;
@@ -405,399 +693,409 @@
             const regex = /<([^>]+)>/g;
             let match;
 
-            while ((match = regex.exec(bodyRawText)) !== null) {
-                cleanedText += bodyRawText.substring(lastIdx, match.index);
+            while ((match = regex.exec(rawText)) !== null) {
+                cleanedText += rawText.substring(lastIdx, match.index);
                 cleanedText += ` [${fnCount}]`;
-                // Store with brackets for standard rendering
-                footnotes.push({ number: fnCount, text: match[1].trim() });
+                footnotes.push({ num: fnCount, text: match[1].trim() });
                 fnCount++;
                 lastIdx = regex.lastIndex;
             }
-            cleanedText += bodyRawText.substring(lastIdx);
+            cleanedText += rawText.substring(lastIdx);
+            return { cleanedText, footnotes };
+        }
 
-            // 2. TEXT FLOW COMPILER (PRE-RENDER FLOW PLANNING)
-            const colGap = 30;
-            const colWidth = (canvas.width - (margin * 2) - ((numColumns - 1) * colGap)) / numColumns;
-            const textLineHeight = fontSize * lineHeightMultiplier;
-            const paragraphSpacing = fontSize * 0.85;
-
-            // Split the cleaned text into paragraphs
-            const rawParas = cleanedText.split('\n\n');
-            let formattedBlocks = []; // {type: 'text'|'heading', text: string}
-
+        function calculateTextFlow(ctx, text, maxWidth, fontSize, fontFamily, lineMult) {
+            const rawParas = text.split('\n');
+            let flowItems = [];
+            
             rawParas.forEach(para => {
                 const trimmed = para.trim();
-                if (trimmed === '') return;
-                // Detect headings and separators
-                if (trimmed.startsWith('➖') || trimmed.startsWith('🔳') || trimmed.startsWith('🛑') || trimmed.startsWith('🟰')) {
-                    formattedBlocks.push({ type: 'heading', text: trimmed });
-                } else {
-                    formattedBlocks.push({ type: 'text', text: trimmed });
+                if (trimmed === '') {
+                    flowItems.push({ type: 'gap', height: fontSize * 0.5 });
+                    return;
                 }
-            });
-
-            // Core Word Wrapper supporting RTL and mixed typography
-            function wrapWordsToLines(blockText, fSize, isHeading) {
-                ctx.font = `${isHeading ? 'bold' : 'normal'} ${fSize}px 'Amiri', serif`;
-                const words = blockText.split(/\s+/);
-                let lines = [];
-                let currentLine = '';
-
-                for (let i = 0; i < words.length; i++) {
-                    let testLine = currentLine ? currentLine + ' ' + words[i] : words[i];
-                    let metrics = ctx.measureText(testLine);
-                    
-                    if (metrics.width > colWidth && currentLine) {
-                        lines.push(currentLine);
-                        currentLine = words[i];
-                    } else {
-                        currentLine = testLine;
-                    }
-                }
-                if (currentLine) {
-                    lines.push(currentLine);
-                }
-                return lines;
-            }
-
-            // Construct all lines sequentially
-            let flowingItems = []; // {type: 'line'|'gap', text: string, fontSize: number, height: number, isHeading: boolean}
-            formattedBlocks.forEach(block => {
-                if (block.type === 'heading') {
-                    flowingItems.push({ type: 'gap', height: paragraphSpacing * 1.5 });
-                    let wrapped = wrapWordsToLines(block.text, fontSize * 1.15, true);
-                    wrapped.forEach(l => {
-                        flowingItems.push({ type: 'line', text: l, fontSize: fontSize * 1.15, height: (fontSize * 1.15) * 1.4, isHeading: true });
+                
+                const isHeading = trimmed.startsWith('➖') || trimmed.startsWith('🔳') || trimmed.startsWith('🛑');
+                const fSize = isHeading ? fontSize * 1.15 : fontSize;
+                const fWeight = isHeading ? 'bold' : 'normal';
+                
+                ctx.font = `${fWeight} ${fSize}px '${fontFamily}', serif`;
+                const lines = wrapText(ctx, trimmed, maxWidth);
+                
+                if (isHeading) flowItems.push({ type: 'gap', height: fontSize });
+                
+                lines.forEach(l => {
+                    flowItems.push({ 
+                        type: 'line', 
+                        text: l, 
+                        font: ctx.font, 
+                        height: fSize * lineMult,
+                        isHeading
                     });
-                    flowingItems.push({ type: 'gap', height: paragraphSpacing * 0.5 });
-                } else {
-                    let wrapped = wrapWordsToLines(block.text, fontSize, false);
-                    wrapped.forEach(l => {
-                        flowingItems.push({ type: 'line', text: l, fontSize: fontSize, height: textLineHeight, isHeading: false });
-                    });
-                    flowingItems.push({ type: 'gap', height: paragraphSpacing });
-                }
-            });
-
-            // 3. DYNAMIC CANVAS HEIGHT CALCULATOR
-            const topHeaderHeight = 445; // BroadSheet banners, titles, ornate frames, portraits and document stamps
-            let totalFlowingHeight = 0;
-            flowingItems.forEach(item => {
-                totalFlowingHeight += item.height;
-            });
-
-            // Standardize columns distribution to get optimum balancing height
-            const colSectionHeight = (totalFlowingHeight / numColumns) + 160; 
-            
-            // Calculate Footnotes section height
-            ctx.font = `12px 'Tajawal', sans-serif`;
-            let footnotesHeight = 0;
-            if (footnotes.length > 0) {
-                footnotesHeight = 50; // Heading height
-                footnotes.forEach(fn => {
-                    let wrappedFn = [];
-                    let words = `${fn.number}. ${fn.text}`.split(' ');
-                    let currentLine = '';
-                    const fnWidth = canvas.width - (margin * 2);
-                    for (let i = 0; i < words.length; i++) {
-                        let testLine = currentLine ? currentLine + ' ' + words[i] : words[i];
-                        if (ctx.measureText(testLine).width > fnWidth && currentLine) {
-                            wrappedFn.push(currentLine);
-                            currentLine = words[i];
-                        } else {
-                            currentLine = testLine;
-                        }
-                    }
-                    if (currentLine) wrappedFn.push(currentLine);
-                    footnotesHeight += wrappedFn.length * 19 + 6;
                 });
+                
+                flowItems.push({ type: 'gap', height: fontSize * 0.8 }); // Paragraph spacing
+            });
+            return flowItems;
+        }
+
+        function wrapText(ctx, text, maxWidth) {
+            // Enhanced wrap logic for Arabic
+            const words = text.split(/(\s+)/); // keep spaces to preserve structure if needed, but let's do normal split
+            const cleanWords = text.split(/\s+/);
+            let lines = [];
+            let currentLine = '';
+
+            for (let i = 0; i < cleanWords.length; i++) {
+                let testLine = currentLine ? currentLine + ' ' + cleanWords[i] : cleanWords[i];
+                let metrics = ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && currentLine !== '') {
+                    lines.push(currentLine);
+                    currentLine = cleanWords[i];
+                } else {
+                    currentLine = testLine;
+                }
             }
+            if (currentLine) lines.push(currentLine);
+            return lines;
+        }
 
-            // Adjust Canvas Height dynamically
-            const finalCanvasHeight = topHeaderHeight + colSectionHeight + footnotesHeight + 90;
-            canvas.height = finalCanvasHeight;
-
-            // 4. DRAW PAPER BACKGROUND & BASE TEXTURES
+        function drawPaperBackground(ctx, w, h, theme) {
             ctx.fillStyle = theme.bg;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, w, h);
 
-            // Subtle paper aging vignette
-            let gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 150, canvas.width / 2, canvas.height / 2, canvas.width);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
-            gradient.addColorStop(1, 'rgba(40, 25, 10, 0.08)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Add simulated noise/texture
+            ctx.fillStyle = theme.dark;
+            for(let i=0; i< (w*h*theme.noise)/100; i++) {
+                let x = Math.random() * w;
+                let y = Math.random() * h;
+                let s = Math.random() * 1.5;
+                ctx.globalAlpha = Math.random() * 0.5;
+                ctx.fillRect(x, y, s, s);
+            }
+            ctx.globalAlpha = 1.0;
 
-            // Real double borders typical for vintage broadsheets
-            ctx.strokeStyle = theme.doubleBorder;
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-            ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
+            // Vignette edges
+            let grad = ctx.createRadialGradient(w/2, h/2, w/3, w/2, h/2, w);
+            grad.addColorStop(0, 'rgba(255,255,255,0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.15)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+        }
 
-            // 5. DRAW THE TOP BRASS HEADER & DECORATIONS
-            ctx.fillStyle = theme.ink;
-            ctx.textAlign = 'center';
-            ctx.direction = 'rtl';
+        function drawBorders(ctx, w, h, theme) {
+            ctx.strokeStyle = theme.border;
             
-            ctx.font = `italic 14px 'Amiri', serif`;
-            ctx.fillText('العدد الممتاز - منبر الفكر واللغة والأثر', canvas.width / 2, 45);
-            ctx.font = `bold 18px 'Amiri', serif`;
-            ctx.fillText('﷽', canvas.width / 2, 72);
+            // Outer thick
+            ctx.lineWidth = 3;
+            ctx.strokeRect(12, 12, w - 24, h - 24);
+            
+            // Inner thin
+            ctx.lineWidth = 1;
+            ctx.strokeRect(18, 18, w - 36, h - 36);
+            
+            // Corner flourishes
+            const m = 18;
+            const L = 30; // length of flourish
+            ctx.lineWidth = 2;
+            
+            // Top Left
+            ctx.beginPath(); ctx.moveTo(m, m+L); ctx.quadraticCurveTo(m, m, m+L, m); ctx.stroke();
+            // Top Right
+            ctx.beginPath(); ctx.moveTo(w-m, m+L); ctx.quadraticCurveTo(w-m, m, w-m-L, m); ctx.stroke();
+            // Bottom Right
+            ctx.beginPath(); ctx.moveTo(w-m, h-m-L); ctx.quadraticCurveTo(w-m, h-m, w-m-L, h-m); ctx.stroke();
+            // Bottom Left
+            ctx.beginPath(); ctx.moveTo(m, h-m-L); ctx.quadraticCurveTo(m, h-m, m+L, h-m); ctx.stroke();
+        }
 
-            // Thick header lines
+        function drawHeader(ctx, cfg, theme, hHeight) {
+            const cx = cfg.width / 2;
+            ctx.textAlign = 'center';
+            ctx.fillStyle = theme.ink;
+            ctx.textBaseline = 'top';
+
+            // Top small text
+            ctx.font = `italic 15px 'Amiri', serif`;
+            ctx.fillText('العدد الممتاز - منبر الفكر واللغة والأثر', cx, 40);
+            
+            ctx.font = `bold 22px 'Amiri', serif`;
+            ctx.fillText('﷽', cx, 65);
+
+            // Lines
             ctx.strokeStyle = theme.ink;
-            ctx.lineWidth = 4.5;
-            ctx.beginPath();
-            ctx.moveTo(margin, 88);
-            ctx.lineTo(canvas.width - margin, 88);
-            ctx.stroke();
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(cfg.margin, 100); ctx.lineTo(cfg.width - cfg.margin, 100); ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cfg.margin, 107); ctx.lineTo(cfg.width - cfg.margin, 107); ctx.stroke();
 
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(margin, 95);
-            ctx.lineTo(canvas.width - margin, 95);
-            ctx.stroke();
-
-            // BroadSheet Banner Title
-            const ribbonY = 110;
-            const ribbonHeight = 72;
-            const ribbonWidth = 680;
-            const ribbonX = (canvas.width - ribbonWidth) / 2;
+            // Broad Ribbon
+            const ribbonY = 125;
+            const ribbonH = 75;
+            const ribbonW = 750;
+            const rX = cx - (ribbonW/2);
 
             ctx.save();
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.12)';
-            ctx.shadowBlur = 12;
-            ctx.shadowOffsetY = 5;
-            let goldGrad = ctx.createLinearGradient(ribbonX, ribbonY, ribbonX + ribbonWidth, ribbonY);
+            ctx.shadowColor = 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 4;
+            
+            // Create nice gradient ribbon
+            let goldGrad = ctx.createLinearGradient(rX, ribbonY, rX + ribbonW, ribbonY);
             goldGrad.addColorStop(0, theme.bg);
-            goldGrad.addColorStop(0.25, theme.dark);
+            goldGrad.addColorStop(0.2, theme.dark);
             goldGrad.addColorStop(0.5, theme.bg);
-            goldGrad.addColorStop(0.75, theme.dark);
+            goldGrad.addColorStop(0.8, theme.dark);
             goldGrad.addColorStop(1, theme.bg);
 
             ctx.fillStyle = goldGrad;
-            ctx.strokeStyle = theme.doubleBorder;
-            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = theme.border;
+            ctx.lineWidth = 2;
+            
             ctx.beginPath();
-            ctx.moveTo(ribbonX, ribbonY + 12);
-            ctx.quadraticCurveTo(ribbonX + ribbonWidth/2, ribbonY - 5, ribbonX + ribbonWidth, ribbonY + 12);
-            ctx.lineTo(ribbonX + ribbonWidth, ribbonY + ribbonHeight - 12);
-            ctx.quadraticCurveTo(ribbonX + ribbonWidth/2, ribbonY + ribbonHeight + 5, ribbonX, ribbonY + ribbonHeight - 12);
+            ctx.moveTo(rX, ribbonY + 10);
+            ctx.quadraticCurveTo(cx, ribbonY - 5, rX + ribbonW, ribbonY + 10);
+            ctx.lineTo(rX + ribbonW, ribbonY + ribbonH - 10);
+            ctx.quadraticCurveTo(cx, ribbonY + ribbonH + 5, rX, ribbonY + ribbonH - 10);
             ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            ctx.fill(); ctx.stroke();
             ctx.restore();
 
-            // Calligraphic main banner text "متابعات مصباح..."
+            // Ribbon Text
             ctx.fillStyle = theme.ink;
-            ctx.font = `bold 30px 'Reem Kufi', sans-serif`;
-            ctx.fillText(topTitle, canvas.width / 2, ribbonY + 46);
+            ctx.font = `bold 32px 'Reem Kufi', sans-serif`;
+            // vertically center text in ribbon
+            ctx.fillText(cfg.title, cx, ribbonY + (ribbonH/2) - 18);
 
             // Categories
-            ctx.font = `bold 17px 'Tajawal', sans-serif`;
-            ctx.fillText(`⌈ ${categories} ⌉`, canvas.width / 2, 218);
+            ctx.font = `bold 18px 'Tajawal', sans-serif`;
+            ctx.fillText(`⟪ ${cfg.category} ⟫`, cx, 235);
 
-            // Article Sub-header Title
-            ctx.font = `bold 23px 'Reem Kufi', sans-serif`;
-            ctx.fillText(subTitle, canvas.width / 2, 262);
+            // Subtitle
+            ctx.font = `bold 26px 'Reem Kufi', sans-serif`;
+            ctx.fillText(cfg.subtitle, cx, 280);
 
             // Author Byline
-            ctx.font = `bold 15px 'Tajawal', sans-serif`;
             ctx.fillStyle = theme.sepia;
-            ctx.fillText(author, canvas.width / 2, 292);
+            ctx.font = `bold 17px 'Tajawal', sans-serif`;
+            ctx.fillText(cfg.author, cx, 320);
 
-            // Double dividing rules after banners
+            // Divider Lines
             ctx.strokeStyle = theme.ink;
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(margin, 318);
-            ctx.lineTo(canvas.width - margin, 318);
-            ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cfg.margin, 355); ctx.lineTo(cfg.width - cfg.margin, 355); ctx.stroke();
             ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(margin, 324);
-            ctx.lineTo(canvas.width - margin, 324);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cfg.margin, 362); ctx.lineTo(cfg.width - cfg.margin, 362); ctx.stroke();
+        }
 
-            // 6. DRAW PORTRAIT OF THE AUTHOR IN ROYAL GOLDEN OVAL
-            const authorFrameX = canvas.width - margin - 85;
-            const authorFrameY = 220;
-            
+        function drawImages(ctx, cfg, theme) {
+            // Author Portrait (Right side)
+            const aX = cfg.width - cfg.margin - 90;
+            const aY = 240;
+            const rX = 65, rY = 85;
+
             ctx.save();
-            // Golden Oval Frame Outer Border
+            // Ornate Oval Frame
             ctx.beginPath();
-            ctx.ellipse(authorFrameX, authorFrameY, 65, 80, 0, 0, Math.PI * 2);
-            ctx.strokeStyle = '#b89849';
-            ctx.lineWidth = 5.5;
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-            ctx.shadowBlur = 10;
+            ctx.ellipse(aX, aY, rX, rY, 0, 0, Math.PI*2);
+            ctx.strokeStyle = theme.theme === 'royal' ? '#b59336' : theme.sepia;
+            ctx.lineWidth = 6;
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 15;
             ctx.stroke();
 
-            // Inner clip for Portrait drawing
+            // Inner clip
             ctx.beginPath();
-            ctx.ellipse(authorFrameX, authorFrameY, 60, 75, 0, 0, Math.PI * 2);
+            ctx.ellipse(aX, aY, rX - 2, rY - 2, 0, 0, Math.PI*2);
             ctx.clip();
-            ctx.drawImage(authorImage, authorFrameX - 60, authorFrameY - 75, 120, 150);
+            if(state.images.author.src) {
+                // drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+                // Fit image nicely
+                ctx.drawImage(state.images.author, aX - rX, aY - rY, rX*2, rY*2);
+            }
             ctx.restore();
 
-            // Document Decision from King Khalid University (file: image_b3c8e5.jpg) on left side
-            const docFrameX = margin + 15;
-            const docFrameY = 135;
-            const docW = 120;
-            const docH = 168;
+            // Document Image (Left side)
+            const docW = 130, docH = 180;
+            const dX = cfg.margin + 20;
+            const dY = 145;
 
             ctx.save();
-            ctx.fillStyle = '#ffffff';
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 2;
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-            ctx.shadowBlur = 12;
-            // Draw soft paper shadow and borders
-            ctx.fillRect(docFrameX, docFrameY, docW, docH);
-            ctx.strokeRect(docFrameX, docFrameY, docW, docH);
+            ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(dX, dY, docW, docH);
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(dX, dY, docW, docH);
 
-            // Draw university document
-            ctx.drawImage(docImage, docFrameX + 4, docFrameY + 4, docW - 8, docH - 8);
+            if(state.images.doc.src) {
+                ctx.drawImage(state.images.doc, dX + 5, dY + 5, docW - 10, docH - 10);
+            }
             ctx.restore();
 
-            // Document caption
+            // Doc Caption
             ctx.fillStyle = theme.sepia;
-            ctx.font = `bold 10.5px 'Tajawal', sans-serif`;
+            ctx.font = `11px 'Tajawal', sans-serif`;
             ctx.textAlign = 'center';
-            ctx.fillText('قرار اللجنة اللغوية بجامعة الملك خالد', docFrameX + docW / 2, docFrameY + docH + 18);
+            ctx.fillText('مرفق مرجعي', dX + (docW/2), dY + docH + 15);
+        }
 
-            // 7. MULTI-COLUMN TEXT RENDER FLOW
+        function drawColumns(ctx, items, cfg, theme, startY, colWidth, colGap, maxColHeight) {
             let currentColumn = 0;
-            let colX = margin;
-            let colY = topHeaderHeight;
+            let currentX = cfg.margin;
+            let currentY = startY;
 
-            ctx.fillStyle = theme.ink;
             ctx.textAlign = 'right';
+            ctx.fillStyle = theme.ink;
 
-            flowingItems.forEach(item => {
+            items.forEach(item => {
                 if (item.type === 'gap') {
-                    colY += item.height;
+                    currentY += item.height;
                     return;
                 }
 
-                // Wrap into next column if height exceeded
-                if (colY + item.height > topHeaderHeight + colSectionHeight) {
+                // Check overflow
+                if (currentY + item.height > startY + maxColHeight) {
                     currentColumn++;
-                    if (currentColumn < numColumns) {
-                        colX = margin + currentColumn * (colWidth + colGap);
-                        colY = topHeaderHeight;
+                    if (currentColumn < cfg.columns) {
+                        currentX = cfg.margin + (currentColumn * (colWidth + colGap));
+                        currentY = startY;
                     } else {
-                        // Overflow layout safely
-                        colY = topHeaderHeight;
+                        // Max columns reached (safety boundary)
+                        currentY = startY; 
                     }
                 }
 
-                const lineRightX = colX + colWidth;
+                const rightBound = currentX + colWidth;
 
-                // Draw column separator lines
-                if (currentColumn > 0 && colY === topHeaderHeight) {
-                    ctx.strokeStyle = theme.lineColor;
+                // Draw column divider if needed
+                if (currentColumn > 0 && currentY === startY) {
+                    ctx.save();
+                    ctx.strokeStyle = theme.lines;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.moveTo(colX - (colGap / 2), topHeaderHeight - 15);
-                    ctx.lineTo(colX - (colGap / 2), topHeaderHeight + colSectionHeight + 15);
+                    ctx.moveTo(currentX - (colGap/2), startY);
+                    ctx.lineTo(currentX - (colGap/2), startY + maxColHeight);
                     ctx.stroke();
+                    ctx.restore();
                 }
 
-                ctx.font = `${item.isHeading ? 'bold' : 'normal'} ${item.fontSize}px 'Amiri', serif`;
-                
-                // Draw RTL wrapped line
-                ctx.fillText(item.text, lineRightX, colY + item.fontSize);
-                colY += item.height;
+                ctx.font = item.font;
+                ctx.fillText(item.text, rightBound, currentY);
+                currentY += item.height;
             });
-
-            // 8. RENDER SMART FOOTNOTES (حواشي المقال)
-            if (footnotes.length > 0) {
-                const fnStartY = topHeaderHeight + colSectionHeight + 15;
-
-                // Footnote section divider line
-                ctx.strokeStyle = theme.doubleBorder;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.setLineDash([5, 4]);
-                ctx.moveTo(margin, fnStartY);
-                ctx.lineTo(canvas.width - margin, fnStartY);
-                ctx.stroke();
-                ctx.setLineDash([]); // Reset dash
-
-                // Footnotes section header
-                ctx.fillStyle = theme.sepia;
-                ctx.font = `bold 14.5px 'Reem Kufi', sans-serif`;
-                ctx.textAlign = 'right';
-                ctx.fillText('حواشي ومراجع المقال المعتمدة تلقائياً:', canvas.width - margin, fnStartY + 28);
-
-                // Print all extracted footnotes
-                ctx.fillStyle = theme.ink;
-                ctx.font = `12.5px 'Tajawal', sans-serif`;
-                let fnOffset = fnStartY + 52;
-
-                footnotes.forEach(fn => {
-                    let words = `${fn.number}. ${fn.text}`.split(' ');
-                    let currentLine = '';
-                    const fnWidth = canvas.width - (margin * 2);
-                    let wrappedFn = [];
-
-                    for (let i = 0; i < words.length; i++) {
-                        let testLine = currentLine ? currentLine + ' ' + words[i] : words[i];
-                        if (ctx.measureText(testLine).width > fnWidth && currentLine) {
-                            wrappedFn.push(currentLine);
-                            currentLine = words[i];
-                        } else {
-                            currentLine = testLine;
-                        }
-                    }
-                    if (currentLine) wrappedFn.push(currentLine);
-
-                    wrappedFn.forEach(lineText => {
-                        ctx.fillText(lineText, canvas.width - margin, fnOffset);
-                        fnOffset += 19;
-                    });
-                    fnOffset += 5;
-                });
-            }
-
-            // 9. FOOTER DESIGN ELEMENTS
-            const footerY = canvas.height - 35;
-            ctx.fillStyle = theme.sepia;
-            ctx.font = `11.5px 'Tajawal', sans-serif`;
-            
-            ctx.textAlign = 'right';
-            ctx.fillText('صياغة فورية رقمية - بوابات كنفاس اللغوية © ٢٠٢٦', canvas.width - margin, footerY);
-
-            ctx.textAlign = 'left';
-            ctx.fillText('شعبة الفهرسة والتوثيق الأثري والقبلي - صحيفة مِصباح', margin, footerY);
-
-            ctx.textAlign = 'center';
-            ctx.font = `bold 16px 'Amiri', serif`;
-            ctx.fillText('❦ ❦ ❦', canvas.width / 2, footerY - 2);
         }
 
-        function downloadCanvasImage() {
-            const canvas = document.getElementById('broadsheet-canvas');
+        function drawFootnotesSection(ctx, footnotes, cfg, theme, startY, usableWidth) {
+            const m = cfg.margin;
             
-            // Show loading state
-            const downloadBtn = event.currentTarget;
-            const originalHTML = downloadBtn.innerHTML;
-            downloadBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> جاري حفظ الصورة...`;
-            downloadBtn.disabled = true;
+            ctx.save();
+            ctx.strokeStyle = theme.border;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(m, startY); ctx.lineTo(cfg.width - m, startY); ctx.stroke();
+            ctx.restore();
 
+            ctx.fillStyle = theme.sepia;
+            ctx.textAlign = 'right';
+            ctx.font = `bold 16px 'Reem Kufi', sans-serif`;
+            ctx.fillText('هوامش وتخريجات معتمدة:', cfg.width - m, startY + 20);
+
+            ctx.fillStyle = theme.ink;
+            ctx.font = `13px 'Tajawal', sans-serif`;
+            
+            let fnY = startY + 50;
+            footnotes.forEach(fn => {
+                const lines = wrapText(ctx, `${fn.num}. ${fn.text}`, usableWidth);
+                lines.forEach(line => {
+                    ctx.fillText(line, cfg.width - m, fnY);
+                    fnY += 20; // fixed line height for footnotes
+                });
+                fnY += 5; // Gap between notes
+            });
+        }
+
+        function drawFooter(ctx, margin, canvasH, theme, canvasW) {
+            const footerY = canvasH - 35;
+            
+            ctx.fillStyle = theme.sepia;
+            ctx.font = `12px 'Tajawal', sans-serif`;
+            
+            ctx.textAlign = 'right';
+            ctx.fillText('أُرشِف وصُفَّت حروفه رقمياً ©', canvasW - margin, footerY);
+
+            ctx.textAlign = 'left';
+            ctx.fillText('منصة الكانفاس الأثرية', margin, footerY);
+
+            ctx.textAlign = 'center';
+            ctx.font = `bold 18px 'Amiri', serif`;
+            ctx.fillText('❧ ❦ ☙', canvasW / 2, footerY - 4);
+        }
+
+        /**
+         * Export Features
+         */
+        function exportImage() {
+            showToast("جاري تجهيز الصورة عالية الدقة...", "info");
             setTimeout(() => {
-                // Export Canvas with superior 0.95 quality jpeg
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                // مضاعفة الدقة 3 مرات للصورة
+                renderCanvas(3);
+
+                const canvas = document.getElementById('paper-canvas');
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
                 const link = document.createElement('a');
-                link.download = 'متابعات_مصباح_صالح_الأسمري_مؤرشفة.jpg';
+                link.download = `وثيقة_صحفية_${Date.now()}.jpg`;
                 link.href = imgData;
                 link.click();
 
-                // Restore Button State
-                downloadBtn.innerHTML = originalHTML;
-                downloadBtn.disabled = false;
-            }, 600);
+                // استعادة حجم الشاشة الطبيعي
+                renderCanvas(1);
+                showToast("تم الحفظ بنجاح!", "success");
+            }, 100);
+        }
+
+        function exportPDF() {
+            showToast("جاري توليد ملف الـ PDF (بدقة طباعة فائقة)...", "info");
+            setTimeout(() => {
+                try {
+                    // مضاعفة الدقة 4 مرات للـ PDF لضمان حدة النص عند التكبير
+                    renderCanvas(4);
+
+                    const { jsPDF } = window.jspdf;
+                    const canvas = document.getElementById('paper-canvas');
+                    
+                    const cw = canvas.width;
+                    const ch = canvas.height;
+                    
+                    // A4 Width is 210mm
+                    const pdfW = 210;
+                    const pdfH = (ch * pdfW) / cw;
+                    
+                    const doc = new jsPDF({
+                        orientation: pdfH > pdfW ? 'portrait' : 'landscape',
+                        unit: 'mm',
+                        format: [pdfW, pdfH]
+                    });
+
+                    // استخدام جودة عالية جداً للـ JPEG لتفادي التشويش
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    doc.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+                    doc.save(`صحيفة_مؤرشفة_${Date.now()}.pdf`);
+                    
+                    // استعادة حجم الشاشة الطبيعي
+                    renderCanvas(1);
+                    showToast("تم حفظ الـ PDF بنجاح!", "success");
+                } catch (error) {
+                    console.error(error);
+                    renderCanvas(1); // استعادة الكانفاس في حال حدوث خطأ
+                    showToast("حدث خطأ أثناء تصدير الـ PDF. تأكد من اتصالك بالإنترنت.", "error");
+                }
+            }, 100);
         }
     </script>
 </body>
