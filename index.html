@@ -427,14 +427,13 @@
                                 <button onclick="document.getElementById('file-doc').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">رفع</button>
                             </div>
                         </div>
-                    </div>
 
                         <!-- Background Image -->
-                        <div class="bg-dark-800/80 p-3 rounded-xl border border-white/5 space-y-2">
+                        <div class="bg-dark-800/80 p-3 rounded-xl border border-white/5 space-y-3">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <i class="fa-solid fa-image text-gold-500 text-sm"></i>
-                                    <span class="text-[11px] text-white">صورة الخلفية</span>
+                                    <span class="text-[11px] text-white font-bold">صورة الخلفية</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <button onclick="openBgAIModal()" class="text-xs bg-dark-600 hover:bg-dark-500 text-gold-400 px-2 py-1.5 rounded-lg transition-colors border border-gold-500/20" title="توليد خلفية بالذكاء الاصطناعي">
@@ -447,6 +446,7 @@
                                     </button>
                                 </div>
                             </div>
+                            
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <div class="flex justify-between mb-1 text-[11px] text-gray-400">
@@ -464,7 +464,40 @@
                                     </select>
                                 </div>
                             </div>
-                            <div id="bg-preview-wrap" class="hidden w-full h-10 rounded-lg bg-cover bg-center border border-white/10 relative overflow-hidden">
+
+                            <!-- NEW: Background Transform Controls -->
+                            <div class="bg-dark-900/50 p-2 rounded-lg border border-white/5 space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1 text-[10px] text-gray-400">
+                                        <span>حجم وتكبير الصورة</span>
+                                        <span id="lbl-bg-scale" class="text-gold-400 font-mono">100%</span>
+                                    </div>
+                                    <input type="range" id="cfg-bg-scale" min="10" max="300" step="5" value="100" class="w-full h-1">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1 text-[10px] text-gray-400">
+                                            <span>إزاحة (يمين/يسار)</span>
+                                            <span id="lbl-bg-x" class="text-gold-400 font-mono">0%</span>
+                                        </div>
+                                        <input type="range" id="cfg-bg-x" min="-100" max="100" step="1" value="0" class="w-full h-1">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between mb-1 text-[10px] text-gray-400">
+                                            <span>إزاحة (أعلى/أسفل)</span>
+                                            <span id="lbl-bg-y" class="text-gold-400 font-mono">0%</span>
+                                        </div>
+                                        <input type="range" id="cfg-bg-y" min="-100" max="100" step="1" value="0" class="w-full h-1">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button onclick="resetBgTransform()" class="text-[9px] text-gray-500 hover:text-gray-300 transition-colors bg-transparent border-none">
+                                        <i class="fa-solid fa-rotate-left mr-1"></i> إعادة ضبط الأبعاد
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="bg-preview-wrap" class="hidden w-full h-10 rounded-lg bg-cover bg-center border border-white/10 relative overflow-hidden mt-2">
                                 <div class="absolute inset-0 bg-dark-800/50 flex items-center justify-center">
                                     <span class="text-[9px] text-gray-400">معاينة الخلفية</span>
                                 </div>
@@ -602,6 +635,9 @@
                     borderAuthor: document.getElementById('cfg-border-author').checked,
                     borderDoc: document.getElementById('cfg-border-doc').checked,
                     bgFit: document.getElementById('cfg-bg-fit').value,
+                    bgScale: document.getElementById('cfg-bg-scale').value,
+                    bgOffsetX: document.getElementById('cfg-bg-x').value,
+                    bgOffsetY: document.getElementById('cfg-bg-y').value,
                     authorImgSrc: state.images.author.src || '',
                     docImgSrc: state.images.doc.src || ''
                 };
@@ -647,6 +683,20 @@
                 document.getElementById('cfg-border-author').checked = data.borderAuthor !== undefined ? data.borderAuthor : true;
                 document.getElementById('cfg-border-doc').checked = data.borderDoc !== undefined ? data.borderDoc : true;
                 document.getElementById('cfg-bg-fit').value = data.bgFit || 'stretch';
+
+                // Load transform values
+                if (data.bgScale !== undefined) {
+                    document.getElementById('cfg-bg-scale').value = data.bgScale;
+                    document.getElementById('lbl-bg-scale').innerText = data.bgScale + '%';
+                }
+                if (data.bgOffsetX !== undefined) {
+                    document.getElementById('cfg-bg-x').value = data.bgOffsetX;
+                    document.getElementById('lbl-bg-x').innerText = data.bgOffsetX + '%';
+                }
+                if (data.bgOffsetY !== undefined) {
+                    document.getElementById('cfg-bg-y').value = data.bgOffsetY;
+                    document.getElementById('lbl-bg-y').innerText = data.bgOffsetY + '%';
+                }
                 
                 setTheme(state.theme);
                 document.getElementById('cfg-page-size').value = state.pageSize;
@@ -1099,13 +1149,24 @@
             document.getElementById('file-doc').addEventListener('change', (e) => handleImageUpload(e, 'doc'));
             document.getElementById('file-background').addEventListener('change', handleBackgroundUpload);
 
-            // Background opacity slider
+            // Background controls listeners
             document.getElementById('cfg-bg-opacity').addEventListener('input', (e) => {
                 state.backgroundOpacity = parseInt(e.target.value) / 100;
                 document.getElementById('lbl-bg-opacity').innerText = e.target.value + '%';
                 scheduleRender();
             });
-
+            document.getElementById('cfg-bg-scale').addEventListener('input', (e) => {
+                document.getElementById('lbl-bg-scale').innerText = e.target.value + '%';
+                scheduleRender();
+            });
+            document.getElementById('cfg-bg-x').addEventListener('input', (e) => {
+                document.getElementById('lbl-bg-x').innerText = e.target.value + '%';
+                scheduleRender();
+            });
+            document.getElementById('cfg-bg-y').addEventListener('input', (e) => {
+                document.getElementById('lbl-bg-y').innerText = e.target.value + '%';
+                scheduleRender();
+            });
 
             // Setup Canvas Panning (Drag to scroll)
             setupCanvasPanning();
@@ -1133,6 +1194,16 @@
                 }
             }, 1500);
         };
+
+        function resetBgTransform() {
+            document.getElementById('cfg-bg-scale').value = 100;
+            document.getElementById('lbl-bg-scale').innerText = '100%';
+            document.getElementById('cfg-bg-x').value = 0;
+            document.getElementById('lbl-bg-x').innerText = '0%';
+            document.getElementById('cfg-bg-y').value = 0;
+            document.getElementById('lbl-bg-y').innerText = '0%';
+            scheduleRender();
+        }
 
         function setupDefaultImage(imgObj, src, previewId) {
             imgObj.crossOrigin = "Anonymous"; // Prevent canvas tainting if possible
@@ -1170,6 +1241,7 @@
                     wrap.style.backgroundImage = `url(${e.target.result})`;
                     wrap.classList.remove('hidden');
                     showToast("تم رفع صورة الخلفية بنجاح", "success");
+                    resetBgTransform();
                     scheduleRender();
                 };
                 img.src = e.target.result;
@@ -1427,6 +1499,7 @@
                     wrap.style.backgroundImage = `url(${finalImageSrc})`;
                     wrap.classList.remove('hidden');
                     showToast("تم توليد خلفية المقال بالذكاء الاصطناعي بنجاح!", "success");
+                    resetBgTransform();
                     scheduleRender();
                     closeBgAIModal();
                 };
@@ -1637,49 +1710,64 @@
             // Background
             drawPaperBackground(ctx, logicalWidth, logicalHeight, theme);
 
-            // Custom background image overlay
+            // Custom background image overlay with advanced transform logic
             if (state.backgroundImage && state.backgroundImage.complete && state.backgroundImage.naturalWidth > 0) {
                 ctx.save();
                 ctx.globalAlpha = state.backgroundOpacity;
                 const fitMode = document.getElementById('cfg-bg-fit').value;
+                
+                // Get modifiers from the new controls
+                const bgScale = parseFloat(document.getElementById('cfg-bg-scale').value) / 100;
+                const bgOffsetX = (parseFloat(document.getElementById('cfg-bg-x').value) / 100) * logicalWidth;
+                const bgOffsetY = (parseFloat(document.getElementById('cfg-bg-y').value) / 100) * logicalHeight;
+
+                const imgRatio = state.backgroundImage.width / state.backgroundImage.height;
+                const canvasRatio = logicalWidth / logicalHeight;
+                let baseW, baseH, baseX, baseY;
+
+                // 1. Calculate Base Fit
                 if (fitMode === 'cover') {
-                    // Draw image covering the entire canvas
-                    const imgRatio = state.backgroundImage.width / state.backgroundImage.height;
-                    const canvasRatio = logicalWidth / logicalHeight;
-                    let drawWidth, drawHeight, offsetX, offsetY;
                     if (imgRatio > canvasRatio) {
-                        drawHeight = logicalHeight;
-                        drawWidth = logicalHeight * imgRatio;
-                        offsetX = (logicalWidth - drawWidth) / 2;
-                        offsetY = 0;
+                        baseH = logicalHeight;
+                        baseW = logicalHeight * imgRatio;
+                        baseX = (logicalWidth - baseW) / 2;
+                        baseY = 0;
                     } else {
-                        drawWidth = logicalWidth;
-                        drawHeight = logicalWidth / imgRatio;
-                        offsetX = 0;
-                        offsetY = (logicalHeight - drawHeight) / 2;
+                        baseW = logicalWidth;
+                        baseH = logicalWidth / imgRatio;
+                        baseX = 0;
+                        baseY = (logicalHeight - baseH) / 2;
                     }
-                    ctx.drawImage(state.backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
                 } else if (fitMode === 'contain') {
-                    // Draw image contained inside the canvas
-                    const imgRatio = state.backgroundImage.width / state.backgroundImage.height;
-                    const canvasRatio = logicalWidth / logicalHeight;
-                    let drawWidth, drawHeight, offsetX, offsetY;
                     if (imgRatio > canvasRatio) {
-                        drawWidth = logicalWidth;
-                        drawHeight = logicalWidth / imgRatio;
-                        offsetX = 0;
-                        offsetY = (logicalHeight - drawHeight) / 2;
+                        baseW = logicalWidth;
+                        baseH = logicalWidth / imgRatio;
+                        baseX = 0;
+                        baseY = (logicalHeight - baseH) / 2;
                     } else {
-                        drawHeight = logicalHeight;
-                        drawWidth = logicalHeight * imgRatio;
-                        offsetX = (logicalWidth - drawWidth) / 2;
-                        offsetY = 0;
+                        baseH = logicalHeight;
+                        baseW = logicalHeight * imgRatio;
+                        baseX = (logicalWidth - baseW) / 2;
+                        baseY = 0;
                     }
-                    ctx.drawImage(state.backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
                 } else {
-                    // Default: stretch
-                    ctx.drawImage(state.backgroundImage, 0, 0, logicalWidth, logicalHeight);
+                    // stretch
+                    baseW = logicalWidth;
+                    baseH = logicalHeight;
+                    baseX = 0;
+                    baseY = 0;
                 }
+
+                // 2. Apply Custom Transforms (Scale from center of image, then Translate)
+                const centerX = baseX + (baseW / 2);
+                const centerY = baseY + (baseH / 2);
+
+                const finalW = baseW * bgScale;
+                const finalH = baseH * bgScale;
+                const finalX = centerX - (finalW / 2) + bgOffsetX;
+                const finalY = centerY - (finalH / 2) + bgOffsetY;
+
+                ctx.drawImage(state.backgroundImage, finalX, finalY, finalW, finalH);
                 ctx.restore();
             }
             
@@ -2432,7 +2520,6 @@
             </div>
         </div>
     </div>
-</body>
 
     <!-- Background AI Modal -->
     <div id="bg-ai-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[200] w-full max-w-lg bg-dark-800 border border-white/10 rounded-2xl shadow-2xl p-6 font-tajawal" dir="rtl">
@@ -2499,4 +2586,5 @@
         </div>
     </div>
 
+</body>
 </html>
