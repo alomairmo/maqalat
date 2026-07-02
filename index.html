@@ -48,6 +48,13 @@
     </script>
 
     <style>
+        @font-face {
+            font-family: 'Uthman Taha';
+            src: url('https://cdn.jsdelivr.net/npm/kfgqpc-uthmanic-script-hafs-regular/arabic.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -143,7 +150,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden">
 
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2"></div>
@@ -218,8 +225,19 @@
                     
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-[11px] text-gray-400 mb-1">عنوان الجريدة الرئيسي</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-[11px] text-gray-400">عنوان الجريدة الرئيسي</label>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" id="cfg-show-ribbon" checked class="w-3.5 h-3.5 accent-gold-500 rounded cursor-pointer">
+                                    <span class="text-[10px] text-gray-400">شريط العنوان (البرواز)</span>
+                                </label>
+                            </div>
                             <input type="text" id="cfg-top-title" class="input-field w-full rounded-lg px-3 py-2 text-sm font-reem text-white" value="مُتابعات ... مِصباح .. (مَقالات صَحفِيَّة)">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-1">العدد</label>
+                            <input type="text" id="cfg-issue" class="input-field w-full rounded-lg px-3 py-2 text-xs text-white" value="العدد الممتاز - منبر الفكر واللغة والأثر">
                         </div>
                         
                         <div class="grid grid-cols-2 gap-3">
@@ -257,6 +275,19 @@
                     </h3>
                     
                     <div class="space-y-4">
+                        <!-- Page Size Selection -->
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-2">أبعاد وحجم الصفحة</label>
+                            <select id="cfg-page-size" onchange="setPageSize(this.value)" class="input-field w-full rounded-lg px-3 py-2 text-xs text-white">
+                                <option value="free" selected>حجم حر (تلقائي حسب المحتوى)</option>
+                                <option value="a4-portrait">A4 عامودي (مطبوعات / ملفات)</option>
+                                <option value="a4-landscape">A4 أفقي (مطبوعات / ملفات)</option>
+                                <option value="video-vertical">فيديو طولي (9:16 - Reels / Stories)</option>
+                                <option value="video-horizontal">فيديو عرضي (16:9 - YouTube)</option>
+                                <option value="video-square">منشور مربع (1:1 - Instagram)</option>
+                            </select>
+                        </div>
+
                         <!-- Paper Theme -->
                         <div>
                             <label class="block text-[11px] text-gray-400 mb-2">نوع الورق</label>
@@ -277,17 +308,29 @@
                         </div>
 
                         <!-- Typography controls -->
-                        <div class="grid grid-cols-2 gap-4 bg-dark-800/50 p-3 rounded-xl border border-white/5">
-                            <div>
-                                <label class="block text-[11px] text-gray-400 mb-2">نوع خط المتن</label>
-                                <select id="cfg-font-family" class="input-field w-full rounded-lg px-2 py-1.5 text-xs text-white">
-                                    <option value="Amiri">أميري (تقليدي)</option>
-                                    <option value="Tajawal">تجوال (عصري)</option>
-                                    <option value="Cairo">كايرو (عريض)</option>
-                                </select>
+                        <div class="space-y-3 bg-dark-800/50 p-3 rounded-xl border border-white/5">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 mb-1.5">نوع خط المتن</label>
+                                    <select id="cfg-font-family" class="input-field w-full rounded-lg px-2 py-1.5 text-xs text-white">
+                                        <option value="Uthman Taha" selected>عثمان طه (مصحفي)</option>
+                                        <option value="Amiri">أميري (تقليدي)</option>
+                                        <option value="Tajawal">تجوال (عصري)</option>
+                                        <option value="Cairo">كايرو (عريض)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 mb-1.5">خط الحاشية السفلية</label>
+                                    <select id="cfg-footnote-font" class="input-field w-full rounded-lg px-2 py-1.5 text-xs text-white">
+                                        <option value="Tajawal" selected>تجوال (الافتراضي)</option>
+                                        <option value="Uthman Taha">عثمان طه (مصحفي)</option>
+                                        <option value="Amiri">أميري (تقليدي)</option>
+                                        <option value="Cairo">كايرو (عريض)</option>
+                                    </select>
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] text-gray-400 mb-2">الأعمدة الصحفية</label>
+                                <label class="block text-[11px] text-gray-400 mb-1.5">الأعمدة الصحفية</label>
                                 <select id="cfg-columns" class="input-field w-full rounded-lg px-2 py-1.5 text-xs text-white">
                                     <option value="1">عمود واحد (1)</option>
                                     <option value="2">عمودان (2)</option>
@@ -304,7 +347,7 @@
                                     <span>حجم الخط</span>
                                     <span id="lbl-font-size" class="text-gold-400 font-mono">13.5px</span>
                                 </div>
-                                <input type="range" id="cfg-font-size" min="10" max="22" step="0.5" value="13.5">
+                                <input type="range" id="cfg-font-size" min="10" max="32" step="0.5" value="13.5">
                             </div>
                             <div>
                                 <div class="flex justify-between mb-1 text-[11px] text-gray-400">
@@ -318,7 +361,7 @@
                                     <span>الهوامش</span>
                                     <span id="lbl-margin" class="text-gold-400 font-mono">45px</span>
                                 </div>
-                                <input type="range" id="cfg-margin" min="20" max="80" step="5" value="45">
+                                <input type="range" id="cfg-margin" min="20" max="120" step="5" value="45">
                             </div>
                         </div>
                     </div>
@@ -342,8 +385,21 @@
                                     <span class="block text-[9px] text-emerald-400">مرفوعة محلياً</span>
                                 </div>
                             </div>
-                            <input type="file" id="file-author" class="hidden" accept="image/*">
-                            <button onclick="document.getElementById('file-author').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">تغيير</button>
+                            <div class="flex items-center gap-2">
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" id="cfg-show-author" checked class="w-3.5 h-3.5 accent-gold-500 rounded cursor-pointer">
+                                    <span class="text-[10px] text-gray-400">إظهار</span>
+                                </label>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" id="cfg-border-author" checked class="w-3.5 h-3.5 accent-gold-500 rounded cursor-pointer">
+                                    <span class="text-[10px] text-gray-400">برواز</span>
+                                </label>
+                                <button onclick="openAIModal('author')" class="text-xs bg-dark-600 hover:bg-dark-500 text-gold-400 px-2 py-1.5 rounded-lg transition-colors border border-gold-500/20" title="توليد بالذكاء الاصطناعي">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </button>
+                                <input type="file" id="file-author" class="hidden" accept="image/*">
+                                <button onclick="document.getElementById('file-author').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">رفع</button>
+                            </div>
                         </div>
 
                         <!-- Doc Image -->
@@ -355,8 +411,64 @@
                                     <span class="block text-[9px] text-emerald-400">مرفوعة محلياً</span>
                                 </div>
                             </div>
-                            <input type="file" id="file-doc" class="hidden" accept="image/*">
-                            <button onclick="document.getElementById('file-doc').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">تغيير</button>
+                            <div class="flex items-center gap-2">
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" id="cfg-show-doc" checked class="w-3.5 h-3.5 accent-gold-500 rounded cursor-pointer">
+                                    <span class="text-[10px] text-gray-400">إظهار</span>
+                                </label>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="checkbox" id="cfg-border-doc" checked class="w-3.5 h-3.5 accent-gold-500 rounded cursor-pointer">
+                                    <span class="text-[10px] text-gray-400">برواز</span>
+                                </label>
+                                <button onclick="openAIModal('doc')" class="text-xs bg-dark-600 hover:bg-dark-500 text-gold-400 px-2 py-1.5 rounded-lg transition-colors border border-gold-500/20" title="توليد بالذكاء الاصطناعي">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </button>
+                                <input type="file" id="file-doc" class="hidden" accept="image/*">
+                                <button onclick="document.getElementById('file-doc').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">رفع</button>
+                            </div>
+                        </div>
+                    </div>
+
+                        <!-- Background Image -->
+                        <div class="bg-dark-800/80 p-3 rounded-xl border border-white/5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-image text-gold-500 text-sm"></i>
+                                    <span class="text-[11px] text-white">صورة الخلفية</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="openBgAIModal()" class="text-xs bg-dark-600 hover:bg-dark-500 text-gold-400 px-2 py-1.5 rounded-lg transition-colors border border-gold-500/20" title="توليد خلفية بالذكاء الاصطناعي">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    </button>
+                                    <input type="file" id="file-background" class="hidden" accept="image/*">
+                                    <button onclick="document.getElementById('file-background').click()" class="text-xs bg-dark-600 hover:bg-dark-500 text-white px-3 py-1.5 rounded-lg transition-colors border border-white/10">رفع</button>
+                                    <button onclick="removeBackground()" class="text-xs bg-dark-600 hover:bg-red-900/40 text-red-400 px-2 py-1.5 rounded-lg transition-colors border border-red-500/20" title="حذف الخلفية">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <div class="flex justify-between mb-1 text-[11px] text-gray-400">
+                                        <span>الشفافية</span>
+                                        <span id="lbl-bg-opacity" class="text-gold-400 font-mono">30%</span>
+                                    </div>
+                                    <input type="range" id="cfg-bg-opacity" min="0" max="100" step="5" value="30" class="w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 mb-1">ملاءمة الخلفية</label>
+                                    <select id="cfg-bg-fit" class="input-field w-full rounded-lg px-2 py-1 text-xs text-white">
+                                        <option value="stretch">تمديد كامل (Stretch)</option>
+                                        <option value="cover" selected>قص الزائد (Cover)</option>
+                                        <option value="contain">احتواء (Contain)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="bg-preview-wrap" class="hidden w-full h-10 rounded-lg bg-cover bg-center border border-white/10 relative overflow-hidden">
+                                <div class="absolute inset-0 bg-dark-800/50 flex items-center justify-center">
+                                    <span class="text-[9px] text-gray-400">معاينة الخلفية</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -373,11 +485,17 @@
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
             </div>
 
+            <!-- Overflow Warning Banner -->
+            <div id="overflow-warning" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 bg-red-950/90 backdrop-blur-md border border-red-500/30 px-4 py-2.5 rounded-full flex items-center gap-2.5 shadow-2xl transition-all duration-300 hidden">
+                <i class="fa-solid fa-triangle-exclamation text-red-500 animate-pulse text-sm"></i>
+                <span class="text-[11px] font-medium text-red-200 font-tajawal">تنبيه: حجم النص يتجاوز حدود حجم الصفحة المحددة. قم بتصغير الخط، تقليل تباعد الأسطر، أو تقليص النص.</span>
+            </div>
+
             <!-- Scrollable Canvas Wrapper -->
-            <div id="scroll-container" class="flex-1 overflow-auto w-full h-full custom-scrollbar relative flex items-start justify-center p-10 cursor-grab active:cursor-grabbing">
+            <div id="scroll-container" class="flex-1 overflow-auto w-full h-full custom-scrollbar relative flex items-start justify-start p-10 cursor-grab active:cursor-grabbing">
                 
                 <!-- Transform wrapper -->
-                <div id="zoom-wrapper" class="origin-top transition-transform duration-100 ease-out relative">
+                <div id="zoom-wrapper" class="inline-block mx-auto relative">
                     
                     <!-- The Canvas -->
                     <canvas id="paper-canvas" width="1200" height="1500" class="canvas-shadow bg-white rounded-sm"></canvas>
@@ -398,11 +516,24 @@
     <!-- Script Application -->
     <script>
         /**
+         * Page / Post Aspect Ratios and Dimensions
+         */
+        const PAGE_SIZES = {
+            'free': { label: 'حجم حر (حسب المحتوى)', width: 1200, height: 'auto', type: 'free' },
+            'a4-portrait': { label: 'A4 عامودي (1:1.41)', width: 1200, height: 1697, type: 'fixed' },
+            'a4-landscape': { label: 'A4 أفقي (1.41:1)', width: 1697, height: 1200, type: 'fixed' },
+            'video-vertical': { label: 'فيديو طولي (9:16)', width: 1080, height: 1920, type: 'fixed' },
+            'video-horizontal': { label: 'فيديو عرضي (16:9)', width: 1920, height: 1080, type: 'fixed' },
+            'video-square': { label: 'منشور مربع (1:1)', width: 1200, height: 1200, type: 'fixed' }
+        };
+
+        /**
          * System Configuration & State
          */
         const state = {
             zoom: 0.65,
             theme: 'parchment',
+            pageSize: 'free',
             isDragging: false,
             dragStartX: 0,
             dragStartY: 0,
@@ -412,8 +543,29 @@
                 author: new Image(),
                 doc: new Image()
             },
-            renderTimeout: null
+            renderTimeout: null,
+            aiTarget: null,
+            availableImageModels: [],
+            backgroundImage: null,
+            backgroundOpacity: 0.3
         };
+
+        function setPageSize(sizeName) {
+            state.pageSize = sizeName;
+            
+            // Adjust zoom dynamically so that large landscape or vertical sheets fit nicely in preview
+            const size = PAGE_SIZES[sizeName];
+            if (size.width > 1500) {
+                state.zoom = 0.45;
+            } else if (size.height > 1800) {
+                state.zoom = 0.45;
+            } else {
+                state.zoom = 0.65;
+            }
+            applyZoom();
+            
+            scheduleRender();
+        }
 
         // Paper Themes Palettes
         const THEMES = {
@@ -426,20 +578,513 @@
         // Default Text
         const defaultText = `🔳 جَاءَ فِي كِتَابِ: "مُعْجَمِ قَبَائِلِ الْمَمْلَكَةِ الْعَرَبِيَّةِ السُّعُودِيَّةِ" (ص/22) لِلْأُسْتَاذِ حَمَدِ الْجَاسِرِ رَحِمَهُ اللَّهُ مَا نَصُّهُ: "بَالْأَسْمَرِ: بَنُو الْأَسْمَرِ، وَيُنْطَقُ الِاسْمُ أَحْيَاناً بِتَشْدِيدِ اللَّامِ: بَلَّسْمَر، وَقَدْ يُكْتَبُ خَطَأً: بَلَّلْسْمَر؛ إِحْدَى قَبَائِلِ الْحَجْرِ، وَالنِّسْبَةُ إِلَيْهَا: أَسْمَرِيٌّ" انْتَهَى.\n\nهَذَا وَ"الْأَسْمَرُ: هُوَ جَدُّ (قَبِيلَةِ بَلَّسْمَر)<وقَد أُطلِق هذا اللَّقَب على غَير هذه القَبيلَة كطائفةٍ ببلادِ المَغرب الأَقصى>؛ وَهُوَ أَسْمَرُ بْنُ حَجْرِ بْنِ الْهِنُوءِ... وَقَدْ سُمِّيَتِ الْبِلَادُ الَّتِي يَسْكُنُهَا بَنُوهُ بِاسْمِهِ.\n\n➖أَوّلُهما: إِطار المَبنَى اللَّفْظِي لـ(بَلَّسْمَر)\n\nإِذ إِنَّ النِّسْبَةَ للْقَبيلَةِ هِي: (بَنُو الْأَسْمَرِ) ؛ لكنَّها قَد أُحِيلَتْ إِلى (بَلَّسْمَر) عَمَلًا بِنَحو قَولِ المُبَرَّد رحمَه اللهُ فِي آخَرينَ<الكامل للمبرد (3/299)>: "كُلُّ اسْمٍ مِنْ أَسْمَاءِ الْقَبَائِلِ تَظْهَرُ فِيهِ لَامُ الْمَعْرِفَةِ، فَإِنَّهُمْ يُجِيزُونَ مَعَهُ حَذْفَ النُّونِ".`;
 
+        function saveStateToLocalStorage() {
+            try {
+                const data = {
+                    zoom: state.zoom,
+                    theme: state.theme,
+                    pageSize: state.pageSize,
+                    topTitle: document.getElementById('cfg-top-title').value,
+                    issue: document.getElementById('cfg-issue').value,
+                    category: document.getElementById('cfg-category').value,
+                    author: document.getElementById('cfg-author').value,
+                    subtitle: document.getElementById('cfg-subtitle').value,
+                    body: document.getElementById('cfg-body').value,
+                    fontFamily: document.getElementById('cfg-font-family').value,
+                    footnoteFont: document.getElementById('cfg-footnote-font').value,
+                    columns: document.getElementById('cfg-columns').value,
+                    fontSize: document.getElementById('cfg-font-size').value,
+                    lineHeight: document.getElementById('cfg-line-height').value,
+                    margin: document.getElementById('cfg-margin').value,
+                    showAuthor: document.getElementById('cfg-show-author').checked,
+                    showDoc: document.getElementById('cfg-show-doc').checked,
+                    showRibbon: document.getElementById('cfg-show-ribbon').checked,
+                    borderAuthor: document.getElementById('cfg-border-author').checked,
+                    borderDoc: document.getElementById('cfg-border-doc').checked,
+                    bgFit: document.getElementById('cfg-bg-fit').value,
+                    authorImgSrc: state.images.author.src || '',
+                    docImgSrc: state.images.doc.src || ''
+                };
+                localStorage.setItem('newspaper_canvas_state', JSON.stringify(data));
+            } catch (e) {
+                console.warn('Failed to save state to localStorage', e);
+            }
+        }
+
+        function loadStateFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('newspaper_canvas_state');
+                if (!saved) return false;
+                
+                const data = JSON.parse(saved);
+                
+                state.zoom = data.zoom || 0.65;
+                state.theme = data.theme || 'parchment';
+                state.pageSize = data.pageSize || 'free';
+                
+                document.getElementById('cfg-top-title').value = data.topTitle || '';
+                document.getElementById('cfg-issue').value = data.issue || '';
+                document.getElementById('cfg-category').value = data.category || '';
+                document.getElementById('cfg-author').value = data.author || '';
+                document.getElementById('cfg-subtitle').value = data.subtitle || '';
+                document.getElementById('cfg-body').value = data.body || '';
+                document.getElementById('cfg-font-family').value = data.fontFamily || 'Uthman Taha';
+                document.getElementById('cfg-footnote-font').value = data.footnoteFont || 'Tajawal';
+                document.getElementById('cfg-columns').value = data.columns || '3';
+                
+                document.getElementById('cfg-font-size').value = data.fontSize || '13.5';
+                document.getElementById('lbl-font-size').innerText = (data.fontSize || '13.5') + 'px';
+                
+                document.getElementById('cfg-line-height').value = data.lineHeight || '1.6';
+                document.getElementById('lbl-line-height').innerText = data.lineHeight || '1.6';
+                
+                document.getElementById('cfg-margin').value = data.margin || '45';
+                document.getElementById('lbl-margin').innerText = (data.margin || '45') + 'px';
+                
+                document.getElementById('cfg-show-author').checked = data.showAuthor !== undefined ? data.showAuthor : true;
+                document.getElementById('cfg-show-doc').checked = data.showDoc !== undefined ? data.showDoc : true;
+                document.getElementById('cfg-show-ribbon').checked = data.showRibbon !== undefined ? data.showRibbon : true;
+                document.getElementById('cfg-border-author').checked = data.borderAuthor !== undefined ? data.borderAuthor : true;
+                document.getElementById('cfg-border-doc').checked = data.borderDoc !== undefined ? data.borderDoc : true;
+                document.getElementById('cfg-bg-fit').value = data.bgFit || 'stretch';
+                
+                setTheme(state.theme);
+                document.getElementById('cfg-page-size').value = state.pageSize;
+                
+                if (data.authorImgSrc) {
+                    setupDefaultImage(state.images.author, data.authorImgSrc, 'preview-author');
+                } else {
+                    setupDefaultImage(state.images.author, 'https://placehold.co/400x520/231810/e3d2ad?text=الكاتب', 'preview-author');
+                }
+                
+                if (data.docImgSrc) {
+                    setupDefaultImage(state.images.doc, data.docImgSrc, 'preview-doc');
+                } else {
+                    setupDefaultImage(state.images.doc, 'https://placehold.co/400x560/231810/e3d2ad?text=وثيقة', 'preview-doc');
+                }
+                
+                return true;
+            } catch (e) {
+                console.error('Failed to load state from localStorage', e);
+                return false;
+            }
+        }
+
+        // ==========================================
+        // AI Image Generation System (OpenAI DALL-E)
+        // ==========================================
+
+        function getSavedAPIKey() {
+            return localStorage.getItem('ai_api_key') || '';
+        }
+
+        function getSavedAPIEndpoint() {
+            let ep = localStorage.getItem('ai_api_endpoint') || 'https://api.openai.com';
+            // strip trailing slash if any
+            if (ep.endsWith('/')) {
+                ep = ep.slice(0, -1);
+            }
+            return ep;
+        }
+
+        function saveAPIKey() {
+            const key = document.getElementById('ai-api-key-input').value.trim();
+            let endpoint = document.getElementById('ai-api-endpoint-input').value.trim();
+            if (!key) {
+                showToast("يرجى إدخال مفتاح API صحيح", "error");
+                return;
+            }
+            if (!endpoint) {
+                endpoint = 'https://api.openai.com';
+            }
+            localStorage.setItem('ai_api_key', key);
+            localStorage.setItem('ai_api_endpoint', endpoint);
+            showToast("تم حفظ البيانات بنجاح", "success");
+            
+            document.getElementById('api-key-modal').classList.add('hidden');
+            if (state.aiTarget) {
+                if (state.aiTarget === 'background') {
+                    openBgAIModal();
+                } else {
+                    openAIModal(state.aiTarget);
+                }
+            } else {
+                document.getElementById('ai-modal-backdrop').classList.add('hidden');
+            }
+        }
+
+        function editSavedAPIKey() {
+            document.getElementById('ai-prompt-modal').classList.add('hidden');
+            document.getElementById('bg-ai-modal').classList.add('hidden');
+            document.getElementById('api-key-modal').classList.remove('hidden');
+            document.getElementById('ai-api-key-input').value = getSavedAPIKey();
+            document.getElementById('ai-api-endpoint-input').value = getSavedAPIEndpoint();
+            document.getElementById('ai-api-key-input').focus();
+        }
+
+        function openAPIKeyModalOnLoad() {
+            document.getElementById('ai-modal-backdrop').classList.remove('hidden');
+            document.getElementById('api-key-modal').classList.remove('hidden');
+            document.getElementById('ai-prompt-modal').classList.add('hidden');
+            document.getElementById('bg-ai-modal').classList.add('hidden');
+            document.getElementById('ai-api-key-input').value = '';
+            document.getElementById('ai-api-endpoint-input').value = getSavedAPIEndpoint();
+        }
+
+        function closeAPIKeyModal(skipped = false) {
+            document.getElementById('api-key-modal').classList.add('hidden');
+            document.getElementById('ai-modal-backdrop').classList.add('hidden');
+            if (skipped) {
+                state.aiTarget = null;
+                showToast("تم تخطي تهيئة الذكاء الاصطناعي. يمكنك إعداده لاحقاً عند الحاجة.", "info");
+            }
+        }
+
+        function buildAutoPrompt(targetType) {
+            if (targetType === 'author') {
+                const authorName = document.getElementById('cfg-author').value.replace('بِقَلَمِ:', '').trim();
+                return `A vintage heritage oil painting portrait of an old wise Arab writer named ${authorName}, classical Arabic scholar style, serene intellectual expression, traditional Arab heritage clothes, warm lighting, fine art masterpiece, extremely realistic, highly detailed face features, NO text, NO letters`;
+            } else {
+                const title = document.getElementById('cfg-top-title').value;
+                const subtitle = document.getElementById('cfg-subtitle').value;
+                const bodySnippet = document.getElementById('cfg-body').value.substring(0, 180).replace(/\n/g, ' ').trim();
+                return `An ancient heritage background illustration for an article titled "${title}". Subtitle: "${subtitle}". Context: "${bodySnippet}". Old textured paper texture, historical aesthetic, antique look, abstract ancient artistic flourishes, classical painting style, muted colors, NO text, NO words, NO alphabet letters`;
+            }
+        }
+
+        function getStyleDescription(style) {
+            switch (style) {
+                case 'manuscript':
+                    return ', ancient vintage manuscript drawing, aged paper sketch, highly detailed historical etching style, heritage illustrations, NO text, NO words, NO letters';
+                case 'ornament':
+                    return ', elaborate islamic geometric ornaments, elegant floral arabesque border pattern, heritage design elements, vintage gold and sepia, NO text, NO words';
+                case 'watercolor':
+                    return ', vintage traditional watercolor painting, soft muted colors, old paper texture, fine art sketch, classical antique style, NO text, NO letters';
+                case 'stone':
+                    return ', ancient rock relief, archaeological stone carving, old hieroglyphic/sumerian script style pattern but unreadable, eroded limestone texture, NO modern letters';
+                case 'portrait':
+                    return ', oil painting portrait of an old scholar, renaissance masterpiece style, soft vintage lighting, highly detailed face features, heritage aesthetic, NO text';
+                default:
+                    return ', heritage style, vintage illustration, clean background art, NO text, NO words';
+            }
+        }
+
+        function updateModelDimensions() {
+            const model = document.getElementById('ai-model-select').value;
+            const pageSize = state.pageSize;
+            let dimText = 'مربع (1024x1024)';
+            
+            if (model === 'dall-e-3' || model.includes('3')) {
+                if (pageSize === 'a4-portrait' || pageSize === 'video-vertical') {
+                    dimText = 'عامودي طولي (1024x1792)';
+                } else if (pageSize === 'a4-landscape' || pageSize === 'video-horizontal') {
+                    dimText = 'أفقي عرضي (1792x1024)';
+                } else {
+                    dimText = 'مربع (1024x1024)';
+                }
+            } else {
+                dimText = 'مربع (1024x1024) [المقاس الآمن]';
+            }
+            document.getElementById('ai-dimensions-label').innerText = dimText;
+        }
+
+        async function openAIModal(targetType) {
+            state.aiTarget = targetType;
+            const apiKey = getSavedAPIKey();
+            
+            document.getElementById('ai-modal-backdrop').classList.remove('hidden');
+            
+            if (!apiKey) {
+                document.getElementById('api-key-modal').classList.remove('hidden');
+                document.getElementById('ai-prompt-modal').classList.add('hidden');
+                document.getElementById('ai-api-key-input').value = '';
+                document.getElementById('ai-api-key-input').focus();
+            } else {
+                document.getElementById('api-key-modal').classList.add('hidden');
+                document.getElementById('ai-prompt-modal').classList.remove('hidden');
+                
+                document.getElementById('ai-prompt-input').value = buildAutoPrompt(targetType);
+                document.getElementById('ai-actions-row').classList.remove('hidden');
+                document.getElementById('ai-loading-row').classList.add('hidden');
+                document.getElementById('ai-prompt-input').disabled = false;
+                document.getElementById('ai-style-select').disabled = false;
+                document.getElementById('ai-model-select').disabled = false;
+                document.getElementById('ai-custom-model-input').disabled = false;
+
+                // Fetch real available models and populate dropdown
+                const modelSelect = document.getElementById('ai-model-select');
+                const modelStatus = document.getElementById('ai-model-status');
+                modelSelect.innerHTML = '<option value="loading" disabled selected>جاري جلب النماذج...</option>';
+                modelStatus.classList.remove('hidden');
+                modelStatus.textContent = 'جاري الاتصال بالخادم...';
+
+                try {
+                    const apiEndpoint = getSavedAPIEndpoint();
+                    const modelsResp = await fetch(`${apiEndpoint}/v1/models`, {
+                        headers: { 'Authorization': `Bearer ${apiKey}` }
+                    });
+
+                    if (modelsResp.ok) {
+                        const modelsData = await modelsResp.json();
+                        const allModelIds = (modelsData.data || []).map(m => m.id).sort();
+                        
+                        // Separate preferred image models from all others
+                        const imageKeywords = ['dall', 'image', 'stable', 'flux', 'sdxl', 'midjourney', 'kandinsky', 'gen'];
+                        const imgModels = allModelIds.filter(id => 
+                            imageKeywords.some(kw => id.toLowerCase().includes(kw))
+                        );
+                        const otherModels = allModelIds.filter(id => 
+                            !imageKeywords.some(kw => id.toLowerCase().includes(kw))
+                        );
+
+                        modelSelect.innerHTML = '';
+
+                        if (imgModels.length > 0) {
+                            const grpImg = document.createElement('optgroup');
+                            grpImg.label = 'نماذج توليد الصور';
+                            imgModels.forEach(id => {
+                                const opt = document.createElement('option');
+                                opt.value = id;
+                                opt.textContent = id;
+                                grpImg.appendChild(opt);
+                            });
+                            modelSelect.appendChild(grpImg);
+                        }
+
+                        if (otherModels.length > 0) {
+                            const grpOther = document.createElement('optgroup');
+                            grpOther.label = 'نماذج أخرى (قد تدعم الصور)';
+                            otherModels.forEach(id => {
+                                const opt = document.createElement('option');
+                                opt.value = id;
+                                opt.textContent = id;
+                                grpOther.appendChild(opt);
+                            });
+                            modelSelect.appendChild(grpOther);
+                        }
+
+                        if (allModelIds.length === 0) {
+                            modelSelect.innerHTML = '<option value="" disabled selected>لا توجد نماذج متاحة</option>';
+                            modelStatus.textContent = `تم جلب النماذج لكن القائمة فارغة. استخدم حقل النموذج اليدوي.`;
+                        } else {
+                            // Auto-select first image model if found, else first model
+                            const firstPick = imgModels[0] || allModelIds[0];
+                            modelSelect.value = firstPick;
+                            modelStatus.textContent = `وُجد ${allModelIds.length} نموذج (${imgModels.length} لتوليد الصور).`;
+                        }
+
+                        // Store models list for generation use
+                        state.availableImageModels = imgModels.length > 0 ? imgModels : allModelIds;
+
+                    } else {
+                        throw new Error(`استجابة غير صحيحة من /v1/models`);
+                    }
+                } catch (e) {
+                    modelSelect.innerHTML = `
+                        <option value="gpt-image-2">gpt-image-2</option>
+                        <option value="chatgpt-image-latest">chatgpt-image-latest</option>
+                        <option value="gpt-image-1">gpt-image-1</option>
+                        <option value="dall-e-3">dall-e-3</option>
+                        <option value="dall-e-2">dall-e-2</option>
+                    `;
+                    modelStatus.textContent = `تعذّر جلب النماذج: ${e.message}`;
+                    state.availableImageModels = ['gpt-image-2', 'chatgpt-image-latest', 'gpt-image-1.5', 'gpt-image-1', 'dall-e-3', 'dall-e-2'];
+                }
+
+                updateModelDimensions();
+            }
+        }
+
+        function closeAIModal() {
+            document.getElementById('ai-prompt-modal').classList.add('hidden');
+            document.getElementById('ai-modal-backdrop').classList.add('hidden');
+            state.aiTarget = null;
+        }
+
+        async function convertImageUrlToBase64(url) {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function triggerAIImageGeneration() {
+            const apiKey = getSavedAPIKey();
+            if (!apiKey) {
+                showToast("يرجى حفظ مفتاح API أولاً", "error");
+                return;
+            }
+            
+            const promptText = document.getElementById('ai-prompt-input').value.trim();
+            if (!promptText) {
+                showToast("يرجى كتابة وصف الصورة أولاً", "error");
+                return;
+            }
+            
+            const style = document.getElementById('ai-style-select').value;
+            const finalPrompt = promptText + getStyleDescription(style);
+            
+            const pageSize = state.pageSize;
+            const model = document.getElementById('ai-model-select').value;
+            let size = "1024x1024";
+            if (model === 'dall-e-3') {
+                if (pageSize === 'a4-portrait' || pageSize === 'video-vertical') {
+                    size = "1024x1792";
+                } else if (pageSize === 'a4-landscape' || pageSize === 'video-horizontal') {
+                    size = "1792x1024";
+                }
+            }
+
+            document.getElementById('ai-actions-row').classList.add('hidden');
+            document.getElementById('ai-loading-row').classList.remove('hidden');
+            document.getElementById('ai-prompt-input').disabled = true;
+            document.getElementById('ai-style-select').disabled = true;
+            document.getElementById('ai-model-select').disabled = true;
+
+            try {
+                showToast("جاري التوليد...", "info");
+
+                // Build final list of models to try
+                const customModel = document.getElementById('ai-custom-model-input').value.trim();
+                const chosenModel = document.getElementById('ai-model-select').value;
+
+                let imageModels;
+                if (customModel) {
+                    // User manually typed a model name — use only that
+                    imageModels = [customModel];
+                } else if (state.availableImageModels && state.availableImageModels.length > 0) {
+                    // Use discovered models, put chosen one first
+                    const allDiscovered = state.availableImageModels;
+                    if (allDiscovered.includes(chosenModel)) {
+                        imageModels = [chosenModel, ...allDiscovered.filter(m => m !== chosenModel)];
+                    } else {
+                        imageModels = allDiscovered;
+                    }
+                } else {
+                    imageModels = [chosenModel];
+                }
+
+                let resData = null;
+                let lastError = '';
+
+                for (const candidateModel of imageModels) {
+                    // Determine size: dall-e-3 supports non-square, dall-e-2 requires 1024x1024
+                    let candidateSize = '1024x1024';
+                    if (candidateModel === 'dall-e-3') {
+                        if (pageSize === 'a4-portrait' || pageSize === 'video-vertical') {
+                            candidateSize = '1024x1792';
+                        } else if (pageSize === 'a4-landscape' || pageSize === 'video-horizontal') {
+                            candidateSize = '1792x1024';
+                        }
+                    }
+
+                    // Try with response_format first, then without
+                    const formatVariants = [
+                        { response_format: 'b64_json' },
+                        {}
+                    ];
+
+                    for (const fmt of formatVariants) {
+                        const body = {
+                            model: candidateModel,
+                            prompt: finalPrompt,
+                            n: 1,
+                            size: candidateSize,
+                            ...fmt
+                        };
+
+                        showToast(`جاري التوليد بنموذج ${candidateModel}${fmt.response_format ? '' : ' (URL)'}...`, "info");
+
+                        const apiEndpoint = getSavedAPIEndpoint();
+                        const response = await fetch(`${apiEndpoint}/v1/images/generations`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${apiKey}`
+                            },
+                            body: JSON.stringify(body)
+                        });
+
+                        if (response.ok) {
+                            resData = await response.json();
+                            break;
+                        } else {
+                            const errData = await response.json().catch(() => ({}));
+                            lastError = errData.error?.message || `API error: ${response.status}`;
+                            console.warn(`Model ${candidateModel} (${fmt.response_format || 'url'}) failed: ${lastError}`);
+                        }
+                    }
+
+                    if (resData) break;
+                }
+
+                if (!resData) {
+                    throw new Error(lastError || "فشلت جميع المحاولات مع كافة النماذج المتاحة. تحقق من مفتاح API.");
+                }
+
+                if (!resData.data || resData.data.length === 0) {
+                    throw new Error("لم يتم إرجاع أي صورة في استجابة الخادم.");
+                }
+
+                const item = resData.data[0];
+                let finalImageSrc = '';
+                
+                if (item.b64_json) {
+                    finalImageSrc = `data:image/png;base64,${item.b64_json}`;
+                } else if (item.url) {
+                    showToast("جاري معالجة وتخزين الصورة محلياً...", "info");
+                    try {
+                        finalImageSrc = await convertImageUrlToBase64(item.url);
+                    } catch (corsError) {
+                        console.warn("CORS block or fetch error when converting to base64, using raw URL instead", corsError);
+                        finalImageSrc = item.url;
+                    }
+                } else {
+                    throw new Error("لم يتم العثور على رابط أو تشفير للصورة المسترجعة.");
+                }
+                
+                if (state.aiTarget === 'author') {
+                    setupDefaultImage(state.images.author, finalImageSrc, 'preview-author');
+                } else if (state.aiTarget === 'doc') {
+                    setupDefaultImage(state.images.doc, finalImageSrc, 'preview-doc');
+                }
+                
+                showToast("تم توليد وتطبيق الصورة بالذكاء الاصطناعي بنجاح!", "success");
+                closeAIModal();
+            } catch (error) {
+                console.error(error);
+                showToast(`فشل التوليد: ${error.message}`, "error");
+                
+                document.getElementById('ai-actions-row').classList.remove('hidden');
+                document.getElementById('ai-loading-row').classList.add('hidden');
+                document.getElementById('ai-prompt-input').disabled = false;
+                document.getElementById('ai-style-select').disabled = false;
+                document.getElementById('ai-model-select').disabled = false;
+            }
+        }
+
         /**
          * Initialization
          */
         window.onload = () => {
-            // Setup default text
-            document.getElementById('cfg-body').value = defaultText;
-
-            // Setup Default Images (Placeholders)
-            setupDefaultImage(state.images.author, 'https://placehold.co/400x520/231810/e3d2ad?text=الكاتب', 'preview-author');
-            setupDefaultImage(state.images.doc, 'https://placehold.co/400x560/231810/e3d2ad?text=وثيقة', 'preview-doc');
+            const hasSaved = loadStateFromLocalStorage();
+            
+            if (!hasSaved) {
+                document.getElementById('cfg-body').value = defaultText;
+                setupDefaultImage(state.images.author, 'https://placehold.co/400x520/231810/e3d2ad?text=الكاتب', 'preview-author');
+                setupDefaultImage(state.images.doc, 'https://placehold.co/400x560/231810/e3d2ad?text=وثيقة', 'preview-doc');
+            }
 
             // Attach Listeners to inputs
-            const inputs = document.querySelectorAll('input[type="text"], textarea, select');
-            inputs.forEach(input => input.addEventListener('input', scheduleRender));
+            const inputs = document.querySelectorAll('input[type="text"], input[type="checkbox"], textarea, select');
+            inputs.forEach(input => {
+                const eventName = input.type === 'checkbox' ? 'change' : 'input';
+                input.addEventListener(eventName, scheduleRender);
+            });
 
             const ranges = ['font-size', 'line-height', 'margin'];
             ranges.forEach(id => {
@@ -452,6 +1097,15 @@
             // Image Upload Listeners
             document.getElementById('file-author').addEventListener('change', (e) => handleImageUpload(e, 'author'));
             document.getElementById('file-doc').addEventListener('change', (e) => handleImageUpload(e, 'doc'));
+            document.getElementById('file-background').addEventListener('change', handleBackgroundUpload);
+
+            // Background opacity slider
+            document.getElementById('cfg-bg-opacity').addEventListener('input', (e) => {
+                state.backgroundOpacity = parseInt(e.target.value) / 100;
+                document.getElementById('lbl-bg-opacity').innerText = e.target.value + '%';
+                scheduleRender();
+            });
+
 
             // Setup Canvas Panning (Drag to scroll)
             setupCanvasPanning();
@@ -470,6 +1124,14 @@
                 renderCanvas();
                 showToast("تم تهيئة بيئة العمل بنجاح", "success");
             });
+
+            // Prompt for API key on load if not set (delayed by 1.5 seconds)
+            setTimeout(() => {
+                const savedKey = localStorage.getItem('ai_api_key');
+                if (!savedKey) {
+                    openAPIKeyModalOnLoad();
+                }
+            }, 1500);
         };
 
         function setupDefaultImage(imgObj, src, previewId) {
@@ -495,6 +1157,285 @@
             };
             reader.readAsDataURL(file);
         }
+
+        function handleBackgroundUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.backgroundImage = img;
+                    const wrap = document.getElementById('bg-preview-wrap');
+                    wrap.style.backgroundImage = `url(${e.target.result})`;
+                    wrap.classList.remove('hidden');
+                    showToast("تم رفع صورة الخلفية بنجاح", "success");
+                    scheduleRender();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeBackground() {
+            state.backgroundImage = null;
+            document.getElementById('bg-preview-wrap').classList.add('hidden');
+            document.getElementById('bg-preview-wrap').style.backgroundImage = '';
+            document.getElementById('file-background').value = '';
+            showToast("تم حذف الخلفية", "info");
+            scheduleRender();
+        }
+
+        function toggleBgManualUpload() {
+            const type = document.getElementById('bg-ai-ref-type').value;
+            const fileWrap = document.getElementById('bg-ai-manual-file-wrap');
+            if (type === 'manual') {
+                fileWrap.classList.remove('hidden');
+            } else {
+                fileWrap.classList.add('hidden');
+            }
+        }
+
+        function getInferredArticleStyle() {
+            const title = (document.getElementById('cfg-top-title').value || '').toLowerCase();
+            const subtitle = (document.getElementById('cfg-subtitle').value || '').toLowerCase();
+            const category = (document.getElementById('cfg-category').value || '').toLowerCase();
+            const body = (document.getElementById('cfg-body').value || '').toLowerCase();
+
+            const combined = `${title} ${subtitle} ${category} ${body}`;
+
+            // 1. Check for Southern Saudi / Asiri / Tribes / History
+            if (combined.includes('أسمر') || combined.includes('بشر') || combined.includes('جنوب') || 
+                combined.includes('عسير') || combined.includes('حجر') || combined.includes('قبيل') || 
+                combined.includes('نسب') || combined.includes('تراث')) {
+                return "بشكل فني وزخارف جنوبية عسيرية تراثية سعودية بنقوش هندسية ملونة وألوان ترابية دافئة";
+            }
+            // 2. Religious texts / Fiqh / Quran / Hadith
+            if (combined.includes('مصحف') || combined.includes('قرآن') || combined.includes('حديث') || 
+                combined.includes('فقه') || combined.includes('شرح') || combined.includes('دين') || 
+                combined.includes('إسلام') || combined.includes('كتاب')) {
+                return "بزخارف هندسية إسلامية كلاسيكية مذهبة ناعمة على أطراف الصحيفة وطابع أثري هادئ";
+            }
+            // 3. Poetry / Literature
+            if (combined.includes('شعر') || combined.includes('قصيد') || combined.includes('ديوان') || 
+                combined.includes('لغة') || combined.includes('أدب') || combined.includes('بلاغ')) {
+                return "بطابع ورقي عتيق وبسيط، مع خطوط ذهبية رقيقة وناعمة تحيط بهوامش الكتابة";
+            }
+            // Default elegant heritage background
+            return "بزخارف عربية تراثية كلاسيكية ناعمة تحيط بهوامش المقال وبطابع ورقي عتيق";
+        }
+
+        function openBgAIModal() {
+            const apiKey = getSavedAPIKey();
+            if (!apiKey) {
+                state.aiTarget = 'background';
+                document.getElementById('ai-modal-backdrop').classList.remove('hidden');
+                document.getElementById('api-key-modal').classList.remove('hidden');
+                document.getElementById('ai-prompt-modal').classList.add('hidden');
+                document.getElementById('bg-ai-modal').classList.add('hidden');
+                return;
+            }
+            document.getElementById('ai-modal-backdrop').classList.remove('hidden');
+            document.getElementById('api-key-modal').classList.add('hidden');
+            document.getElementById('ai-prompt-modal').classList.add('hidden');
+            document.getElementById('bg-ai-modal').classList.remove('hidden');
+            document.getElementById('bg-ai-actions').classList.remove('hidden');
+            document.getElementById('bg-ai-loading').classList.add('hidden');
+
+            // Reset manual file inputs and details placeholder
+            document.getElementById('bg-ai-ref-type').value = 'auto';
+            document.getElementById('bg-ai-manual-file-wrap').classList.add('hidden');
+            document.getElementById('bg-ai-ref-file').value = '';
+            document.getElementById('bg-ai-prompt').value = '';
+        }
+
+        function closeBgAIModal() {
+            document.getElementById('bg-ai-modal').classList.add('hidden');
+            document.getElementById('ai-modal-backdrop').classList.add('hidden');
+        }
+
+        async function triggerBgAIGeneration() {
+            const apiKey = getSavedAPIKey();
+            if (!apiKey) { showToast("يرجى حفظ مفتاح API أولاً", "error"); return; }
+
+            const customDetails = document.getElementById('bg-ai-prompt').value.trim();
+            const refType = document.getElementById('bg-ai-ref-type').value;
+
+            document.getElementById('bg-ai-actions').classList.add('hidden');
+            document.getElementById('bg-ai-loading').classList.remove('hidden');
+
+            // 1. Process Reference Image
+            let refImageBlob = null;
+            const loadingText = document.getElementById('bg-ai-loading-text');
+
+            if (refType === 'auto') {
+                loadingText.innerText = "جاري التقاط لقطة المقال الحالية...";
+                const canvas = document.getElementById('paper-canvas');
+                refImageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            } else {
+                loadingText.innerText = "جاري معالجة الصورة المرفوعة...";
+                const fileInput = document.getElementById('bg-ai-ref-file');
+                const file = fileInput.files[0];
+                if (!file) {
+                    showToast("يرجى اختيار صورة مرجعية أولاً أو استخدام الوضع التلقائي", "error");
+                    document.getElementById('bg-ai-actions').classList.remove('hidden');
+                    document.getElementById('bg-ai-loading').classList.add('hidden');
+                    return;
+                }
+                refImageBlob = file;
+            }
+
+            // 2. Build the exact visual theme prompt
+            let chosenStyle = '';
+            if (customDetails) {
+                // User manual detailed description
+                chosenStyle = customDetails;
+            } else {
+                // Dynamic analyzer
+                loadingText.innerText = "جاري تحليل بيانات المقال لتحديد النمط الأنسب...";
+                chosenStyle = getInferredArticleStyle();
+            }
+
+            // Combine with the fixed base instruction prompt
+            const fixedBase = "اصنع خلفية مناسبة لهذا المقال ،ولكن مفرغ من النصوص، وبنفس مقاسات صورة المرجع، واجعل خلف مكان الكتابة لون فاتح لتظهر الكتابة";
+            const arabicPrompt = `${fixedBase}، ${chosenStyle}.`;
+            // Add translation to maximize DALL-E compatibility
+            const englishPrompt = `Make a suitable background for this article, but empty of texts, with the exact same dimensions as the reference image, and make a light color behind the writing area so that the writing is visible. Design style details: ${chosenStyle}. Do not write any words, letters, or numbers.`;
+
+            const promptText = `${englishPrompt} (${arabicPrompt})`;
+
+            // Determine dimensions from actual canvas aspect ratio (supports free/auto height perfectly)
+            const canvas = document.getElementById('paper-canvas');
+            const ratio = canvas.width / canvas.height;
+            let size = '1024x1024';
+            if (ratio < 0.75) {
+                size = '1024x1792'; // tall/portrait (e.g. A4 portrait, free vertical)
+            } else if (ratio > 1.3) {
+                size = '1792x1024'; // wide/landscape (e.g. A4 landscape, video horizontal)
+            }
+
+            // Build model list
+            let imageModels = state.availableImageModels && state.availableImageModels.length > 0
+                ? state.availableImageModels
+                : ['gpt-image-2', 'chatgpt-image-latest', 'gpt-image-1.5', 'gpt-image-1', 'dall-e-3', 'dall-e-2'];
+
+            const customModel = document.getElementById('bg-ai-custom-model').value.trim();
+            if (customModel) imageModels = [customModel];
+
+            let finalImageSrc = null;
+            let lastError = '';
+
+            // Strategy 1: OpenAI Image Edits API (Inpainting)
+            try {
+                loadingText.innerText = "جاري رفع الصورة المرجعية وتعديلها بالذكاء الاصطناعي...";
+                
+                // Convert blob/file to a square 1024x1024 canvas for edits API compliance
+                const imgLoader = new Image();
+                const blobUrl = URL.createObjectURL(refImageBlob);
+                await new Promise((resolve, reject) => {
+                    imgLoader.onload = resolve;
+                    imgLoader.onerror = reject;
+                    imgLoader.src = blobUrl;
+                });
+
+                const squaredCanvas = document.createElement('canvas');
+                squaredCanvas.width = 1024;
+                squaredCanvas.height = 1024;
+                const sqCtx = squaredCanvas.getContext('2d');
+                sqCtx.drawImage(imgLoader, 0, 0, 1024, 1024);
+                
+                const squaredBlob = await new Promise(r => squaredCanvas.toBlob(r, 'image/png'));
+                URL.revokeObjectURL(blobUrl);
+
+                const formData = new FormData();
+                formData.append('image', squaredBlob, 'reference.png');
+                formData.append('prompt', promptText);
+                formData.append('n', '1');
+                formData.append('size', '1024x1024');
+
+                const apiEndpoint = getSavedAPIEndpoint();
+                for (const m of imageModels) {
+                    formData.set('model', m);
+                    const resp = await fetch(`${apiEndpoint}/v1/images/edits`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${apiKey}` },
+                        body: formData
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const item = data.data?.[0];
+                        if (item?.b64_json) {
+                            finalImageSrc = `data:image/png;base64,${item.b64_json}`;
+                        } else if (item?.url) {
+                            loadingText.innerText = "جاري تحميل الصورة الناتجة...";
+                            try { finalImageSrc = await convertImageUrlToBase64(item.url); }
+                            catch { finalImageSrc = item.url; }
+                        }
+                        if (finalImageSrc) break;
+                    } else {
+                        const err = await resp.json().catch(() => ({}));
+                        lastError = err.error?.message || `HTTP ${resp.status}`;
+                        console.warn(`edits/${m} failed: ${lastError}`);
+                    }
+                }
+            } catch (e) {
+                console.warn("Image edits endpoint failed, falling back to text-only generations", e);
+            }
+
+            // Strategy 2: Fallback to text-only generation using the visual layout instructions
+            if (!finalImageSrc) {
+                loadingText.innerText = "جاري محاولة التوليد بالطريقة النصية الاحتياطية...";
+                for (const candidateModel of imageModels) {
+                    const candidateSize = candidateModel === 'dall-e-3' ? size : '1024x1024';
+                    for (const fmt of [{ response_format: 'b64_json' }, {}]) {
+                        const body = { model: candidateModel, prompt: promptText, n: 1, size: candidateSize, ...fmt };
+                        try {
+                            const apiEndpoint = getSavedAPIEndpoint();
+                            const resp = await fetch(`${apiEndpoint}/v1/images/generations`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                                body: JSON.stringify(body)
+                            });
+                            if (resp.ok) {
+                                const data = await resp.json();
+                                const item = data.data?.[0];
+                                if (item?.b64_json) {
+                                    finalImageSrc = `data:image/png;base64,${item.b64_json}`;
+                                } else if (item?.url) {
+                                    try { finalImageSrc = await convertImageUrlToBase64(item.url); }
+                                    catch { finalImageSrc = item.url; }
+                                }
+                                if (finalImageSrc) break;
+                            } else {
+                                const err = await resp.json().catch(() => ({}));
+                                lastError = err.error?.message || `HTTP ${resp.status}`;
+                            }
+                        } catch (e2) { lastError = e2.message; }
+                    }
+                    if (finalImageSrc) break;
+                }
+            }
+
+            document.getElementById('bg-ai-actions').classList.remove('hidden');
+            document.getElementById('bg-ai-loading').classList.add('hidden');
+
+            if (finalImageSrc) {
+                const img = new Image();
+                img.onload = () => {
+                    state.backgroundImage = img;
+                    const wrap = document.getElementById('bg-preview-wrap');
+                    wrap.style.backgroundImage = `url(${finalImageSrc})`;
+                    wrap.classList.remove('hidden');
+                    showToast("تم توليد خلفية المقال بالذكاء الاصطناعي بنجاح!", "success");
+                    scheduleRender();
+                    closeBgAIModal();
+                };
+                img.src = finalImageSrc;
+            } else {
+                showToast(`فشل توليد الخلفية: ${lastError}`, "error");
+            }
+        }
+
 
         /**
          * UI Actions
@@ -533,15 +1474,25 @@
         }
 
         function applyZoom() {
-            document.getElementById('zoom-wrapper').style.transform = `scale(${state.zoom})`;
+            const canvas = document.getElementById('paper-canvas');
+            if (canvas && canvas.width > 0) {
+                const pageSizeConfig = PAGE_SIZES[state.pageSize];
+                const logicalWidth = pageSizeConfig.width;
+                
+                const scaleMultiplier = canvas.width / logicalWidth;
+                const logicalHeight = scaleMultiplier > 0 ? (canvas.height / scaleMultiplier) : 1500;
+                
+                canvas.style.width = (logicalWidth * state.zoom) + 'px';
+                canvas.style.height = (logicalHeight * state.zoom) + 'px';
+            }
             document.getElementById('zoom-level-display').innerText = Math.round(state.zoom * 100) + '%';
         }
 
         function setupCanvasPanning() {
             const container = document.getElementById('scroll-container');
+            const wrapper = document.getElementById('zoom-wrapper');
             
-            container.addEventListener('mousedown', (e) => {
-                // Only pan if clicking on the background, not specifically the canvas itself if we had interaction inside
+            wrapper.addEventListener('mousedown', (e) => {
                 state.isDragging = true;
                 state.dragStartX = e.pageX;
                 state.dragStartY = e.pageY;
@@ -597,14 +1548,22 @@
             }, 300); // Debounce to prevent lag
         }
 
-        function renderCanvas(scaleMultiplier = 1) {
+        function renderCanvas(scaleMultiplier) {
             const canvas = document.getElementById('paper-canvas');
             const ctx = canvas.getContext('2d');
             
+            // Default to high-res rendering for preview (DPR, min 2 for sharpness when zoomed)
+            if (scaleMultiplier === undefined) {
+                scaleMultiplier = Math.max(2, window.devicePixelRatio || 1);
+            }
+            
             // 1. Get Config
-            const logicalWidth = 1200; // Fixed internal logical width
+            const pageSizeConfig = PAGE_SIZES[state.pageSize];
+            const logicalWidth = pageSizeConfig.width;
+            
             const config = {
                 title: document.getElementById('cfg-top-title').value || 'بدون عنوان',
+                issue: document.getElementById('cfg-issue').value || 'العدد الممتاز - منبر الفكر واللغة والأثر',
                 category: document.getElementById('cfg-category').value,
                 author: document.getElementById('cfg-author').value,
                 subtitle: document.getElementById('cfg-subtitle').value,
@@ -622,7 +1581,6 @@
             let { cleanedText, footnotes } = parseFootnotes(config.body);
 
             // 3. Layout Calculation Phase
-            // We need to calculate height BEFORE drawing background
             const colGap = 35;
             const usableWidth = config.width - (config.margin * 2);
             const colWidth = (usableWidth - ((config.columns - 1) * colGap)) / config.columns;
@@ -634,32 +1592,96 @@
             
             // Calculate Heights
             const headerHeight = 450;
-            let totalTextHeight = items.reduce((sum, item) => sum + item.height, 0);
-            const contentHeightPerColumn = Math.ceil(totalTextHeight / config.columns) + 50; // Add padding
             
             // Footnotes Height
             let footnotesHeight = 0;
             if(footnotes.length > 0) {
-                ctx.font = `12px 'Tajawal', sans-serif`;
-                footnotesHeight += 60; // Title
-                footnotes.forEach(fn => {
-                    const lines = wrapText(ctx, `${fn.num}. ${fn.text}`, usableWidth);
-                    footnotesHeight += lines.length * 20 + 5;
-                });
+                const footnoteLines = calculateFootnotesLayout(ctx, footnotes, usableWidth);
+                footnotesHeight = 60 + footnoteLines.length * 22; // Title space + lines * line height
             }
 
-            // Set final Canvas Height dynamically
-            const logicalHeight = headerHeight + contentHeightPerColumn + footnotesHeight + 100;
+            // Determine content height and final canvas height
+            let contentHeightPerColumn;
+            let footnotesStart;
+            let logicalHeight;
+
+            if (pageSizeConfig.type === 'fixed') {
+                logicalHeight = pageSizeConfig.height;
+                if (footnotes.length > 0) {
+                    footnotesStart = logicalHeight - footnotesHeight - config.margin - 30;
+                    contentHeightPerColumn = footnotesStart - headerHeight - 20;
+                } else {
+                    contentHeightPerColumn = logicalHeight - headerHeight - config.margin - 50;
+                }
+                // Ensure there is at least some space
+                contentHeightPerColumn = Math.max(100, contentHeightPerColumn);
+            } else {
+                let totalTextHeight = items.reduce((sum, item) => sum + item.height, 0);
+                contentHeightPerColumn = Math.ceil(totalTextHeight / config.columns) + 50; // Add padding
+                logicalHeight = headerHeight + contentHeightPerColumn + footnotesHeight + 100;
+                footnotesStart = headerHeight + contentHeightPerColumn;
+            }
             
-            // Apply High-Res Scaling for Export
+            // Apply High-Res Scaling for Export or Sharp Preview
             canvas.width = logicalWidth * scaleMultiplier;
             canvas.height = logicalHeight * scaleMultiplier;
+            
+            // Set CSS display dimensions incorporating zoom level to expand scroll container bounds
+            canvas.style.width = (logicalWidth * state.zoom) + 'px';
+            canvas.style.height = (logicalHeight * state.zoom) + 'px';
+            
             ctx.scale(scaleMultiplier, scaleMultiplier);
 
             // 4. Drawing Phase (Using Logical Dimensions)
             
             // Background
             drawPaperBackground(ctx, logicalWidth, logicalHeight, theme);
+
+            // Custom background image overlay
+            if (state.backgroundImage && state.backgroundImage.complete && state.backgroundImage.naturalWidth > 0) {
+                ctx.save();
+                ctx.globalAlpha = state.backgroundOpacity;
+                const fitMode = document.getElementById('cfg-bg-fit').value;
+                if (fitMode === 'cover') {
+                    // Draw image covering the entire canvas
+                    const imgRatio = state.backgroundImage.width / state.backgroundImage.height;
+                    const canvasRatio = logicalWidth / logicalHeight;
+                    let drawWidth, drawHeight, offsetX, offsetY;
+                    if (imgRatio > canvasRatio) {
+                        drawHeight = logicalHeight;
+                        drawWidth = logicalHeight * imgRatio;
+                        offsetX = (logicalWidth - drawWidth) / 2;
+                        offsetY = 0;
+                    } else {
+                        drawWidth = logicalWidth;
+                        drawHeight = logicalWidth / imgRatio;
+                        offsetX = 0;
+                        offsetY = (logicalHeight - drawHeight) / 2;
+                    }
+                    ctx.drawImage(state.backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+                } else if (fitMode === 'contain') {
+                    // Draw image contained inside the canvas
+                    const imgRatio = state.backgroundImage.width / state.backgroundImage.height;
+                    const canvasRatio = logicalWidth / logicalHeight;
+                    let drawWidth, drawHeight, offsetX, offsetY;
+                    if (imgRatio > canvasRatio) {
+                        drawWidth = logicalWidth;
+                        drawHeight = logicalWidth / imgRatio;
+                        offsetX = 0;
+                        offsetY = (logicalHeight - drawHeight) / 2;
+                    } else {
+                        drawHeight = logicalHeight;
+                        drawWidth = logicalHeight * imgRatio;
+                        offsetX = (logicalWidth - drawWidth) / 2;
+                        offsetY = 0;
+                    }
+                    ctx.drawImage(state.backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+                } else {
+                    // Default: stretch
+                    ctx.drawImage(state.backgroundImage, 0, 0, logicalWidth, logicalHeight);
+                }
+                ctx.restore();
+            }
             
             // Frame
             drawBorders(ctx, logicalWidth, logicalHeight, theme);
@@ -671,15 +1693,28 @@
             drawImages(ctx, config, theme);
 
             // Columns (Text)
-            drawColumns(ctx, items, config, theme, headerHeight, colWidth, colGap, contentHeightPerColumn);
+            const hasOverflow = drawColumns(ctx, items, config, theme, headerHeight, colWidth, colGap, contentHeightPerColumn);
+
+            // Show/hide overflow warning
+            const warningEl = document.getElementById('overflow-warning');
+            if (warningEl) {
+                if (hasOverflow && pageSizeConfig.type === 'fixed') {
+                    warningEl.classList.remove('hidden');
+                } else {
+                    warningEl.classList.add('hidden');
+                }
+            }
 
             // Footnotes
             if(footnotes.length > 0) {
-                drawFootnotesSection(ctx, footnotes, config, theme, headerHeight + contentHeightPerColumn, usableWidth);
+                drawFootnotesSection(ctx, footnotes, config, theme, footnotesStart, usableWidth);
             }
 
             // Footer
             drawFooter(ctx, config.margin, logicalHeight, theme, logicalWidth);
+
+            // Save state to local storage automatically
+            saveStateToLocalStorage();
         }
 
         /**
@@ -695,13 +1730,141 @@
 
             while ((match = regex.exec(rawText)) !== null) {
                 cleanedText += rawText.substring(lastIdx, match.index);
-                cleanedText += ` [${fnCount}]`;
+                cleanedText += ` (${fnCount})`;
                 footnotes.push({ num: fnCount, text: match[1].trim() });
                 fnCount++;
                 lastIdx = regex.lastIndex;
             }
             cleanedText += rawText.substring(lastIdx);
             return { cleanedText, footnotes };
+        }
+
+        function calculateFootnotesLayout(ctx, footnotes, usableWidth) {
+            const footnoteLines = [];
+            let currentLineSegments = [];
+            let currentLineWidth = 0;
+            const divider = "   |   ";
+            
+            const fnFontFamily = document.getElementById('cfg-footnote-font').value || 'Tajawal';
+            
+            ctx.font = `13px '${fnFontFamily}', sans-serif`;
+            const dividerWidth = ctx.measureText(divider).width;
+
+            for (let i = 0; i < footnotes.length; i++) {
+                const fn = footnotes[i];
+                const fnNumStr = `(${fn.num}) `;
+                
+                // Measure number
+                ctx.font = `bold 13px '${fnFontFamily}', sans-serif`;
+                const numWidth = ctx.measureText(fnNumStr).width;
+                
+                // Measure text
+                ctx.font = `13px '${fnFontFamily}', sans-serif`;
+                const textWidth = ctx.measureText(fn.text).width;
+                
+                const totalFnWidth = numWidth + textWidth;
+                const neededWidth = currentLineWidth === 0 ? totalFnWidth : totalFnWidth + dividerWidth;
+                
+                if (currentLineWidth + neededWidth <= usableWidth) {
+                    if (currentLineWidth > 0) {
+                        currentLineSegments.push({ type: 'divider', content: divider, width: dividerWidth });
+                        currentLineWidth += dividerWidth;
+                    }
+                    currentLineSegments.push({ type: 'number', content: fnNumStr, width: numWidth });
+                    currentLineSegments.push({ type: 'text', content: fn.text, width: textWidth });
+                    currentLineWidth += totalFnWidth;
+                } else {
+                    if (currentLineSegments.length > 0) {
+                        footnoteLines.push(currentLineSegments);
+                    }
+                    currentLineSegments = [];
+                    currentLineWidth = 0;
+                    
+                    if (totalFnWidth > usableWidth) {
+                        const words = fn.text.split(' ');
+                        currentLineSegments.push({ type: 'number', content: fnNumStr, width: numWidth });
+                        currentLineWidth = numWidth;
+                        
+                        for (let w = 0; w < words.length; w++) {
+                            const word = words[w] + ' ';
+                            ctx.font = `13px '${fnFontFamily}', sans-serif`;
+                            const wordW = ctx.measureText(word).width;
+                            
+                            if (currentLineWidth + wordW <= usableWidth) {
+                                currentLineSegments.push({ type: 'text', content: word, width: wordW });
+                                currentLineWidth += wordW;
+                            } else {
+                                footnoteLines.push(currentLineSegments);
+                                currentLineSegments = [
+                                    { type: 'text', content: word, width: wordW }
+                                ];
+                                currentLineWidth = wordW;
+                            }
+                        }
+                    } else {
+                        currentLineSegments.push({ type: 'number', content: fnNumStr, width: numWidth });
+                        currentLineSegments.push({ type: 'text', content: fn.text, width: textWidth });
+                        currentLineWidth = totalFnWidth;
+                    }
+                }
+            }
+            if (currentLineSegments.length > 0) {
+                footnoteLines.push(currentLineSegments);
+            }
+            return footnoteLines;
+        }
+
+        function drawRichLine(ctx, text, rightBound, y, font, fontSize, theme) {
+            const fnRegex = /\((\d+)\)/g;
+            let match;
+            let lastIdx = 0;
+            let currentX = rightBound;
+
+            ctx.textAlign = 'right';
+            
+            const segments = [];
+            while ((match = fnRegex.exec(text)) !== null) {
+                if (match.index > lastIdx) {
+                    segments.push({
+                        type: 'text',
+                        content: text.substring(lastIdx, match.index)
+                    });
+                }
+                segments.push({
+                    type: 'footnote',
+                    content: match[0]
+                });
+                lastIdx = fnRegex.lastIndex;
+            }
+            if (lastIdx < text.length) {
+                segments.push({
+                    type: 'text',
+                    content: text.substring(lastIdx)
+                });
+            }
+
+            if (segments.length === 0) return;
+
+            segments.forEach(seg => {
+                if (seg.type === 'text') {
+                    ctx.font = font;
+                    ctx.fillStyle = theme.ink;
+                    ctx.fillText(seg.content, currentX, y);
+                    currentX -= ctx.measureText(seg.content).width;
+                } else {
+                    let cleanFont = font.replace(/[\d\.]+px/, `${fontSize * 0.7}px`);
+                    if (cleanFont.includes('normal')) {
+                        cleanFont = cleanFont.replace('normal', 'bold');
+                    } else if (!cleanFont.includes('bold')) {
+                        cleanFont = 'bold ' + cleanFont;
+                    }
+                    ctx.font = cleanFont;
+                    ctx.fillStyle = '#991b1b'; // Dark Red
+                    const yOffset = fontSize * 0.25;
+                    ctx.fillText(seg.content, currentX, y - yOffset);
+                    currentX -= ctx.measureText(seg.content).width;
+                }
+            });
         }
 
         function calculateTextFlow(ctx, text, maxWidth, fontSize, fontFamily, lineMult) {
@@ -729,12 +1892,13 @@
                         type: 'line', 
                         text: l, 
                         font: ctx.font, 
+                        fontSize: fSize,
                         height: fSize * lineMult,
                         isHeading
                     });
                 });
                 
-                flowItems.push({ type: 'gap', height: fontSize * 0.8 }); // Paragraph spacing
+                flowItems.push({ type: 'gap', height: fontSize * 0.8 });
             });
             return flowItems;
         }
@@ -762,6 +1926,7 @@
         }
 
         function drawPaperBackground(ctx, w, h, theme) {
+            // Always fill with paper color first so background image blends naturally
             ctx.fillStyle = theme.bg;
             ctx.fillRect(0, 0, w, h);
 
@@ -818,7 +1983,7 @@
 
             // Top small text
             ctx.font = `italic 15px 'Amiri', serif`;
-            ctx.fillText('العدد الممتاز - منبر الفكر واللغة والأثر', cx, 40);
+            ctx.fillText(cfg.issue, cx, 40);
             
             ctx.font = `bold 22px 'Amiri', serif`;
             ctx.fillText('﷽', cx, 65);
@@ -836,31 +2001,34 @@
             const ribbonW = 750;
             const rX = cx - (ribbonW/2);
 
-            ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,0.15)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetY = 4;
-            
-            // Create nice gradient ribbon
-            let goldGrad = ctx.createLinearGradient(rX, ribbonY, rX + ribbonW, ribbonY);
-            goldGrad.addColorStop(0, theme.bg);
-            goldGrad.addColorStop(0.2, theme.dark);
-            goldGrad.addColorStop(0.5, theme.bg);
-            goldGrad.addColorStop(0.8, theme.dark);
-            goldGrad.addColorStop(1, theme.bg);
+            const showRibbon = document.getElementById('cfg-show-ribbon').checked;
+            if (showRibbon) {
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetY = 4;
+                
+                // Create nice gradient ribbon
+                let goldGrad = ctx.createLinearGradient(rX, ribbonY, rX + ribbonW, ribbonY);
+                goldGrad.addColorStop(0, theme.bg);
+                goldGrad.addColorStop(0.2, theme.dark);
+                goldGrad.addColorStop(0.5, theme.bg);
+                goldGrad.addColorStop(0.8, theme.dark);
+                goldGrad.addColorStop(1, theme.bg);
 
-            ctx.fillStyle = goldGrad;
-            ctx.strokeStyle = theme.border;
-            ctx.lineWidth = 2;
-            
-            ctx.beginPath();
-            ctx.moveTo(rX, ribbonY + 10);
-            ctx.quadraticCurveTo(cx, ribbonY - 5, rX + ribbonW, ribbonY + 10);
-            ctx.lineTo(rX + ribbonW, ribbonY + ribbonH - 10);
-            ctx.quadraticCurveTo(cx, ribbonY + ribbonH + 5, rX, ribbonY + ribbonH - 10);
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            ctx.restore();
+                ctx.fillStyle = goldGrad;
+                ctx.strokeStyle = theme.border;
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(rX, ribbonY + 10);
+                ctx.quadraticCurveTo(cx, ribbonY - 5, rX + ribbonW, ribbonY + 10);
+                ctx.lineTo(rX + ribbonW, ribbonY + ribbonH - 10);
+                ctx.quadraticCurveTo(cx, ribbonY + ribbonH + 5, rX, ribbonY + ribbonH - 10);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+                ctx.restore();
+            }
 
             // Ribbon Text
             ctx.fillStyle = theme.ink;
@@ -891,83 +2059,100 @@
 
         function drawImages(ctx, cfg, theme) {
             // Author Portrait (Right side)
-            const aX = cfg.width - cfg.margin - 90;
-            const aY = 240;
-            const rX = 65, rY = 85;
+            const showAuthor = document.getElementById('cfg-show-author').checked;
+            if (showAuthor) {
+                const aX = cfg.width - cfg.margin - 90;
+                const aY = 240;
+                const rX = 65, rY = 85;
 
-            ctx.save();
-            // Ornate Oval Frame
-            ctx.beginPath();
-            ctx.ellipse(aX, aY, rX, rY, 0, 0, Math.PI*2);
-            ctx.strokeStyle = theme.theme === 'royal' ? '#b59336' : theme.sepia;
-            ctx.lineWidth = 6;
-            ctx.shadowColor = 'rgba(0,0,0,0.3)';
-            ctx.shadowBlur = 15;
-            ctx.stroke();
+                ctx.save();
+                const borderAuthor = document.getElementById('cfg-border-author').checked;
+                if (borderAuthor) {
+                    // Ornate Oval Frame
+                    ctx.beginPath();
+                    ctx.ellipse(aX, aY, rX, rY, 0, 0, Math.PI*2);
+                    ctx.strokeStyle = theme.theme === 'royal' ? '#b59336' : theme.sepia;
+                    ctx.lineWidth = 6;
+                    ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                    ctx.shadowBlur = 15;
+                    ctx.stroke();
+                }
 
-            // Inner clip
-            ctx.beginPath();
-            ctx.ellipse(aX, aY, rX - 2, rY - 2, 0, 0, Math.PI*2);
-            ctx.clip();
-            if(state.images.author.src) {
-                // drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
-                // Fit image nicely
-                ctx.drawImage(state.images.author, aX - rX, aY - rY, rX*2, rY*2);
+                // Inner clip
+                ctx.beginPath();
+                ctx.ellipse(aX, aY, rX - 2, rY - 2, 0, 0, Math.PI*2);
+                ctx.clip();
+                if(state.images.author.src) {
+                    ctx.drawImage(state.images.author, aX - rX, aY - rY, rX*2, rY*2);
+                }
+                ctx.restore();
             }
-            ctx.restore();
 
             // Document Image (Left side)
-            const docW = 130, docH = 180;
-            const dX = cfg.margin + 20;
-            const dY = 145;
+            const showDoc = document.getElementById('cfg-show-doc').checked;
+            if (showDoc) {
+                const docW = 130, docH = 180;
+                const dX = cfg.margin + 20;
+                const dY = 145;
 
-            ctx.save();
-            ctx.shadowColor = 'rgba(0,0,0,0.2)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 3;
-            ctx.shadowOffsetY = 3;
-            
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(dX, dY, docW, docH);
-            ctx.strokeStyle = '#ccc';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(dX, dY, docW, docH);
+                ctx.save();
+                const borderDoc = document.getElementById('cfg-border-doc').checked;
+                if (borderDoc) {
+                    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 3;
+                    ctx.shadowOffsetY = 3;
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(dX, dY, docW, docH);
+                    ctx.strokeStyle = '#ccc';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(dX, dY, docW, docH);
 
-            if(state.images.doc.src) {
-                ctx.drawImage(state.images.doc, dX + 5, dY + 5, docW - 10, docH - 10);
+                    if(state.images.doc.src) {
+                        ctx.drawImage(state.images.doc, dX + 5, dY + 5, docW - 10, docH - 10);
+                    }
+                } else {
+                    // Draw raw image directly without border or padding
+                    if(state.images.doc.src) {
+                        ctx.drawImage(state.images.doc, dX, dY, docW, docH);
+                    }
+                }
+                ctx.restore();
+
+                // Doc Caption
+                ctx.fillStyle = theme.sepia;
+                ctx.font = `11px 'Tajawal', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.fillText('مرفق مرجعي', dX + (docW/2), dY + docH + 15);
             }
-            ctx.restore();
-
-            // Doc Caption
-            ctx.fillStyle = theme.sepia;
-            ctx.font = `11px 'Tajawal', sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.fillText('مرفق مرجعي', dX + (docW/2), dY + docH + 15);
         }
 
         function drawColumns(ctx, items, cfg, theme, startY, colWidth, colGap, maxColHeight) {
             let currentColumn = 0;
-            let currentX = cfg.margin;
+            let currentX = cfg.width - cfg.margin - colWidth;
             let currentY = startY;
+            let overflowed = false;
 
             ctx.textAlign = 'right';
             ctx.fillStyle = theme.ink;
 
-            items.forEach(item => {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 if (item.type === 'gap') {
                     currentY += item.height;
-                    return;
+                    continue;
                 }
 
                 // Check overflow
                 if (currentY + item.height > startY + maxColHeight) {
                     currentColumn++;
                     if (currentColumn < cfg.columns) {
-                        currentX = cfg.margin + (currentColumn * (colWidth + colGap));
+                        currentX = cfg.width - cfg.margin - colWidth - (currentColumn * (colWidth + colGap));
                         currentY = startY;
                     } else {
-                        // Max columns reached (safety boundary)
-                        currentY = startY; 
+                        overflowed = true;
+                        break;
                     }
                 }
 
@@ -979,16 +2164,16 @@
                     ctx.strokeStyle = theme.lines;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.moveTo(currentX - (colGap/2), startY);
-                    ctx.lineTo(currentX - (colGap/2), startY + maxColHeight);
+                    ctx.moveTo(currentX + colWidth + (colGap/2), startY);
+                    ctx.lineTo(currentX + colWidth + (colGap/2), startY + maxColHeight);
                     ctx.stroke();
                     ctx.restore();
                 }
 
-                ctx.font = item.font;
-                ctx.fillText(item.text, rightBound, currentY);
+                drawRichLine(ctx, item.text, rightBound, currentY, item.font, item.fontSize, theme);
                 currentY += item.height;
-            });
+            }
+            return overflowed;
         }
 
         function drawFootnotesSection(ctx, footnotes, cfg, theme, startY, usableWidth) {
@@ -1004,19 +2189,40 @@
             ctx.fillStyle = theme.sepia;
             ctx.textAlign = 'right';
             ctx.font = `bold 16px 'Reem Kufi', sans-serif`;
-            ctx.fillText('هوامش وتخريجات معتمدة:', cfg.width - m, startY + 20);
+            ctx.fillText('الهوامش:', cfg.width - m, startY + 20);
 
-            ctx.fillStyle = theme.ink;
-            ctx.font = `13px 'Tajawal', sans-serif`;
-            
+            // رسم الحواشي الملتفة أفقياً
+            const fnFontFamily = document.getElementById('cfg-footnote-font').value || 'Tajawal';
+            const footnoteLines = calculateFootnotesLayout(ctx, footnotes, usableWidth);
             let fnY = startY + 50;
-            footnotes.forEach(fn => {
-                const lines = wrapText(ctx, `${fn.num}. ${fn.text}`, usableWidth);
-                lines.forEach(line => {
-                    ctx.fillText(line, cfg.width - m, fnY);
-                    fnY += 20; // fixed line height for footnotes
+            const lineSpacing = 22;
+
+            footnoteLines.forEach(line => {
+                let currentX = cfg.width - m;
+                
+                line.forEach(seg => {
+                    if (seg.type === 'number') {
+                        ctx.font = `bold 13px '${fnFontFamily}', sans-serif`;
+                        ctx.fillStyle = '#991b1b'; // أحمر غامق
+                        ctx.textAlign = 'right';
+                        ctx.fillText(seg.content, currentX, fnY);
+                        currentX -= seg.width;
+                    } else if (seg.type === 'text') {
+                        ctx.font = `13px '${fnFontFamily}', sans-serif`;
+                        ctx.fillStyle = theme.ink;
+                        ctx.textAlign = 'right';
+                        ctx.fillText(seg.content, currentX, fnY);
+                        currentX -= seg.width;
+                    } else if (seg.type === 'divider') {
+                        ctx.font = `13px '${fnFontFamily}', sans-serif`;
+                        ctx.fillStyle = theme.sepia;
+                        ctx.textAlign = 'right';
+                        ctx.fillText(seg.content, currentX, fnY);
+                        currentX -= seg.width;
+                    }
                 });
-                fnY += 5; // Gap between notes
+                
+                fnY += lineSpacing;
             });
         }
 
@@ -1054,7 +2260,7 @@
                 link.click();
 
                 // استعادة حجم الشاشة الطبيعي
-                renderCanvas(1);
+                renderCanvas();
                 showToast("تم الحفظ بنجاح!", "success");
             }, 100);
         }
@@ -1072,12 +2278,31 @@
                     const cw = canvas.width;
                     const ch = canvas.height;
                     
-                    // A4 Width is 210mm
-                    const pdfW = 210;
-                    const pdfH = (ch * pdfW) / cw;
+                    let pdfW, pdfH, orientation;
+                    if (state.pageSize === 'a4-portrait') {
+                        pdfW = 210;
+                        pdfH = 297;
+                        orientation = 'portrait';
+                    } else if (state.pageSize === 'a4-landscape') {
+                        pdfW = 297;
+                        pdfH = 210;
+                        orientation = 'landscape';
+                    } else {
+                        // أبعاد مخصصة بناءً على النسبة
+                        const aspect = ch / cw;
+                        if (aspect > 1) {
+                            pdfW = 210;
+                            pdfH = 210 * aspect;
+                            orientation = 'portrait';
+                        } else {
+                            pdfW = 297;
+                            pdfH = 297 * aspect;
+                            orientation = 'landscape';
+                        }
+                    }
                     
                     const doc = new jsPDF({
-                        orientation: pdfH > pdfW ? 'portrait' : 'landscape',
+                        orientation: orientation,
                         unit: 'mm',
                         format: [pdfW, pdfH]
                     });
@@ -1088,15 +2313,190 @@
                     doc.save(`صحيفة_مؤرشفة_${Date.now()}.pdf`);
                     
                     // استعادة حجم الشاشة الطبيعي
-                    renderCanvas(1);
+                    renderCanvas();
                     showToast("تم حفظ الـ PDF بنجاح!", "success");
                 } catch (error) {
                     console.error(error);
-                    renderCanvas(1); // استعادة الكانفاس في حال حدوث خطأ
+                    renderCanvas(); // استعادة الكانفاس في حال حدوث خطأ
                     showToast("حدث خطأ أثناء تصدير الـ PDF. تأكد من اتصالك بالإنترنت.", "error");
                 }
             }, 100);
         }
     </script>
+
+    <!-- AI Settings & Prompt Modals -->
+    <div id="ai-modal-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99] hidden flex items-center justify-center p-4">
+        
+        <!-- API Key Setup Modal -->
+        <div id="api-key-modal" class="glass-panel w-full max-w-md rounded-2xl border border-white/10 shadow-2xl p-6 relative hidden">
+            <h3 class="text-lg font-bold text-gold-500 mb-2 flex items-center gap-2 font-reem">
+                <i class="fa-solid fa-key"></i> تهيئة الذكاء الاصطناعي
+            </h3>
+            <p class="text-xs text-gray-400 mb-4 font-tajawal leading-relaxed">
+                لاستخدام خاصية توليد الصور بالذكاء الاصطناعي، يرجى إدخال مفتاح OpenAI API الخاص بك. يتم حفظ المفتاح محلياً في متصفحك فقط.
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1.5">مفتاح OpenAI API Key</label>
+                    <input type="password" id="ai-api-key-input" class="input-field w-full rounded-lg px-3 py-2 text-sm text-white font-mono" placeholder="sk-...">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1.5">رابط الـ API البديل (Endpoint - اختياري للبروكسي)</label>
+                    <input type="text" id="ai-api-endpoint-input" class="input-field w-full rounded-lg px-3 py-2 text-xs text-white font-mono" placeholder="https://api.openai.com">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button onclick="closeAPIKeyModal(true)" class="text-xs bg-dark-600 hover:bg-dark-500 text-gray-400 px-4 py-2 rounded-lg transition-colors border border-white/5">تخطي</button>
+                    <button onclick="saveAPIKey()" class="text-xs bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-900 font-bold px-5 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)]">حفظ ومتابعة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Image Generation Modal -->
+        <div id="ai-prompt-modal" class="glass-panel w-full max-w-lg rounded-2xl border border-white/10 shadow-2xl p-6 relative hidden">
+            <button onclick="closeAIModal()" class="absolute top-4 left-4 text-gray-500 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <h3 class="text-lg font-bold text-gold-500 mb-2 flex items-center gap-2 font-reem">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> توليد صورة بالذكاء الاصطناعي
+            </h3>
+            <p class="text-xs text-gray-400 mb-4 font-tajawal">
+                قم بتعديل الوصف واختيار النمط الفني لتوليد الصورة المرفقة بالصحيفة.
+            </p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1.5">الوصف الفني (Prompt) - يُفضل باللغة الإنجليزية لأفضل نتائج</label>
+                    <textarea id="ai-prompt-input" rows="4" class="input-field w-full rounded-lg px-3 py-2.5 text-xs text-gray-200 leading-relaxed resize-none custom-scrollbar" placeholder="صف الصورة التي تريد توليدها..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1.5">نموذج التوليد (Model)</label>
+                        <select id="ai-model-select" onchange="updateModelDimensions()" class="input-field w-full rounded-lg px-2 py-2 text-xs text-white">
+                            <option value="" disabled>جاري التحميل...</option>
+                        </select>
+                        <span id="ai-model-status" class="hidden block text-[9px] text-gray-500 mt-1"></span>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-1.5">النمط الفني (Style)</label>
+                        <select id="ai-style-select" class="input-field w-full rounded-lg px-2 py-2 text-xs text-white">
+                            <option value="none">بدون نمط محدد</option>
+                            <option value="manuscript" selected>مخطوطة ورسومات أثرية قديمة</option>
+                            <option value="ornament">زخارف إسلامية تراثية</option>
+                            <option value="watercolor">رسم مائي تقليدي</option>
+                            <option value="stone">نقش حجري أثري</option>
+                            <option value="portrait">لوحة زيتية بورتريه شخصي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Manual model override -->
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1.5">اسم نموذج مخصص (يتجاوز الاختيار أعلاه)</label>
+                    <input type="text" id="ai-custom-model-input" class="input-field w-full rounded-lg px-3 py-2 text-xs text-gray-200" placeholder="مثال: dall-e-3 أو flux-schnell أو اتركه فارغاً">
+                </div>
+                
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1.5">الأبعاد ونسبة العرض (Aspect Ratio)</label>
+                    <div id="ai-dimensions-label" class="bg-dark-900 border border-white/5 rounded-lg px-3 py-2 text-xs text-gold-400 font-mono flex items-center h-[38px]">
+                        مربع (1024x1024)
+                    </div>
+                </div>
+
+                <!-- API Key Edit Row (Optional/Subtle) -->
+                <div class="flex items-center justify-between bg-dark-900/60 p-2.5 rounded-lg border border-white/5 text-[10px] text-gray-400">
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved text-emerald-400"></i> مفتاح API مفعل ومحفوظ محلياً
+                    </span>
+                    <button onclick="editSavedAPIKey()" class="text-gold-500 hover:text-gold-400 font-bold">تغيير المفتاح</button>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex justify-end gap-2 pt-2" id="ai-actions-row">
+                    <button onclick="closeAIModal()" class="text-xs bg-dark-600 hover:bg-dark-500 text-gray-400 px-4 py-2 rounded-lg transition-colors border border-white/5">إلغاء</button>
+                    <button onclick="triggerAIImageGeneration()" class="text-xs bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-900 font-bold px-5 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> ابدأ التوليد
+                    </button>
+                </div>
+
+                <!-- Loading State inside Modal -->
+                <div id="ai-loading-row" class="hidden flex flex-col items-center justify-center py-4 text-center">
+                    <div class="relative flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-circle-notch animate-spin text-3xl text-gold-500"></i>
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs text-gold-400 absolute"></i>
+                    </div>
+                    <span class="text-xs font-bold text-gold-500 font-reem">جاري تصفيف وتوليد الصورة بالذكاء الاصطناعي...</span>
+                    <span class="block text-[10px] text-gray-500 mt-1 font-tajawal">قد يستغرق ذلك من 10 إلى 20 ثانية</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
+    <!-- Background AI Modal -->
+    <div id="bg-ai-modal" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[200] w-full max-w-lg bg-dark-800 border border-white/10 rounded-2xl shadow-2xl p-6 font-tajawal" dir="rtl">
+        <button onclick="closeBgAIModal()" class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center rounded-full bg-dark-600 hover:bg-dark-500 text-gray-400 hover:text-white transition-all">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+
+        <h3 class="text-lg font-bold text-gold-500 mb-2 flex items-center gap-2 font-reem">
+            <i class="fa-solid fa-image"></i> توليد خلفية احترافية بالذكاء الاصطناعي
+        </h3>
+        <p class="text-xs text-gray-400 mb-4">
+            سيقوم النظام بإرسال المقال كصورة مرجعية مع أمر توليد ثابت لتفريغ النص وتصميم خلفية مطابقة للمقاسات تماماً.
+        </p>
+
+        <div class="space-y-4">
+            <!-- Reference Image Type Selection -->
+            <div>
+                <label class="block text-[11px] text-gray-400 mb-1.5">الصورة المرجعية للمقال</label>
+                <select id="bg-ai-ref-type" onchange="toggleBgManualUpload()" class="input-field w-full rounded-lg px-2 py-2 text-xs text-white">
+                    <option value="auto" selected>📸 التقاط صورة المقال الحالية تلقائياً (موصى به)</option>
+                    <option value="manual">📤 رفع صورة مرجعية يدوياً من الجهاز</option>
+                </select>
+                <div id="bg-ai-manual-file-wrap" class="hidden mt-2 p-2 bg-dark-900/60 rounded-lg border border-white/5">
+                    <input type="file" id="bg-ai-ref-file" accept="image/*" class="text-xs text-gray-400">
+                </div>
+            </div>
+
+            <!-- Custom Manual Details -->
+            <div>
+                <label class="block text-[11px] text-gray-400 mb-1.5">الوصف الإضافي المخصص (اختياري)</label>
+                <textarea id="bg-ai-prompt" rows="3" class="input-field w-full rounded-lg px-3 py-2.5 text-xs text-gray-200 leading-relaxed resize-none custom-scrollbar" placeholder="مثال: بزخارف جنوبية عسيرية فنية، ألوان ترابية دافئة... (اتركه فارغاً للتوليد الذكي بناءً على موضوع المقال)"></textarea>
+            </div>
+
+            <!-- Model Override -->
+            <div>
+                <label class="block text-[11px] text-gray-400 mb-1.5">نموذج مخصص (اختياري — يترك فارغاً للاستخدام التلقائي)</label>
+                <input type="text" id="bg-ai-custom-model" class="input-field w-full rounded-lg px-3 py-2 text-xs text-gray-200" placeholder="مثال: dall-e-3 أو اتركه فارغاً">
+            </div>
+
+            <!-- Prompt Preview info block -->
+            <div class="bg-dark-900/60 border border-white/5 rounded-lg p-3 text-[10px] text-gray-400 space-y-1.5">
+                <div class="flex items-center gap-1 text-gold-500 font-bold">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>الأمر الأساسي الثابت للنظام:</span>
+                </div>
+                <p class="italic text-gray-300">"اصنع خلفية مناسبة لهذا المقال، ولكن مفرغ من النصوص، وبنفس مقاسات صورة المرجع، واجعل خلف مكان الكتابة لون فاتح لتظهر الكتابة"</p>
+            </div>
+
+            <div class="flex justify-end gap-2" id="bg-ai-actions">
+                <button onclick="closeBgAIModal()" class="text-xs bg-dark-600 hover:bg-dark-500 text-gray-400 px-4 py-2 rounded-lg transition-colors border border-white/5">إلغاء</button>
+                <button onclick="triggerBgAIGeneration()" class="text-xs bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-900 font-bold px-5 py-2 rounded-lg transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] flex items-center gap-2">
+                    <i class="fa-solid fa-image"></i> ابدأ توليد الخلفية
+                </button>
+            </div>
+
+            <div id="bg-ai-loading" class="hidden flex flex-col items-center justify-center py-4 text-center">
+                <div class="relative flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-circle-notch animate-spin text-3xl text-gold-500"></i>
+                    <i class="fa-solid fa-image text-xs text-gold-400 absolute"></i>
+                </div>
+                <span class="text-xs font-bold text-gold-500 font-reem" id="bg-ai-loading-text">جاري التقاط المقال والتحليل الذكي...</span>
+                <span class="block text-[10px] text-gray-500 mt-1">قد يستغرق ذلك من 15 إلى 35 ثانية</span>
+            </div>
+        </div>
+    </div>
+
 </html>
